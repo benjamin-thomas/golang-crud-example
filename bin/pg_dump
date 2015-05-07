@@ -1,0 +1,8 @@
+#!/bin/bash
+
+docker run --rm \
+         --env PGHOST=$PGHOST \
+         --env PGPORT=$PGPORT \
+         --env PGUSER=$PGUSER \
+         --env PGPASSWORD=$PGPASSWORD \
+         postgres pg_dump "$@"

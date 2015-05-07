@@ -1,0 +1,59 @@
+#!/bin/bash
+
+set -x
+set -e
+
+function concat_css() {
+  lessc ./assets/less/app.less
+}
+
+function concat_js {
+  find ./assets/js/ -type f -name "*.js" | sort -n | xargs cat
+}
+
+function sync_images_and_fonts() {
+  rsync -aP assets/images/ ./public/assets/images/
+  rsync -aP assets/fonts/ ./public/assets/fonts/
+}
+
+function minify_js() {
+  if [[ $DEV == "1" ]];then
+    # Skip this while developing (faster)
+    cat
+  else
+    uglifyjs
+  fi
+}
+
+function minify_css() {
+  if [[ $DEV == "1" ]];then
+    # Skip this while developing (faster)
+    cat
+  else
+    echo cleancss
+    cleancss
+  fi
+}
+
+APP_JS_DEST="./public/assets/app.js"
+APP_CSS_DEST="./public/assets/app.css"
+
+[[ $1 == "reset" ]] && rm -vr ./public/assets
+
+[[ -d ./public/assets ]] || mkdir ./public/assets
+case $1 in
+  js)
+    concat_js | minify_js > $APP_JS_DEST
+    ;;
+  css)
+    concat_css | minify_css > $APP_CSS_DEST
+    ;;
+  *|reset)
+    sync_images_and_fonts
+    concat_css | minify_css > $APP_CSS_DEST
+    concat_js | minify_js > $APP_JS_DEST
+    ;;
+esac
+
+cat $APP_JS_DEST | gzip -9 -c > "${APP_JS_DEST}.gz"
+cat $APP_CSS_DEST | gzip -9 -c > "${APP_CSS_DEST}.gz"

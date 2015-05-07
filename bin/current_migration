@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./bin/psql -c 'SELECT max(version) FROM migrations' --tuples-only --no-align

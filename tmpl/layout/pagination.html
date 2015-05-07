@@ -1,0 +1,5 @@
+{{ define "pagination" }}
+<a href="{{ .Path }}?limit={{ .Limit }}&offset={{ .PrevOffset }}" class="btn">Prev</a>
+<a href="{{ .Path }}?limit={{ .Limit }}&offset={{ .NextOffset }}" class="btn">Next</a>
+{{ .From }} - {{ .To }} out of {{ .Total }}
+{{ end }}

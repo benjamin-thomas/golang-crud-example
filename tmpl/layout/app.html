@@ -1,0 +1,35 @@
+<html>
+  <head>
+    <title>Page title</title>
+
+    <link href="assets/app.css" media="all" rel="stylesheet" type="text/css">
+
+    <!--
+    csrf_token
+    -->
+  </head>
+
+  <body class='without-footer main-nav-closed'>
+
+    <div id='wrapper'>
+      <div id='main-nav-bg'></div>
+
+        <section id="content">
+          <div class="container">
+            <div class="row" id="content-wrapper">
+              <div class="col-xs-12">
+                <!-- content of page -->
+                {{ template "content" . }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="assets/app.js"></script>
+  </body>
+
+  </html>

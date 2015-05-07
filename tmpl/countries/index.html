@@ -1,0 +1,30 @@
+{{ define "content" }}
+<h1>
+  Listing Countries
+</h1>
+
+<div class="responsive-table">
+  <div class="scrollable-area">
+    <table class="table table-bordered table-striped">
+
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+        </tr>
+      </thead>
+
+      <tbody>
+      {{ range .Countries }}
+      <tr>
+        <td>{{ .Id }}</td>
+        <td>{{ .Name }}</td>
+      </tr>
+      {{ end }}
+      </tbody>
+    </table>
+
+    {{ template "pagination" . }}
+  </div>
+</div>
+{{ end }}
