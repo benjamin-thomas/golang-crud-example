@@ -1,5 +1,29 @@
 {{ define "pagination" }}
-<a href="{{ .Path }}?limit={{ .Limit }}&offset={{ .PrevOffset }}" class="btn">Prev</a>
-<a href="{{ .Path }}?limit={{ .Limit }}&offset={{ .NextOffset }}" class="btn">Next</a>
-{{ .From }} - {{ .To }} out of {{ .Total }}
+<a href="{{ .Path }}?page=1&per={{ .Per }}" class="btn btn-default">First</a>
+
+<a href="{{ .Path }}?page={{ .PrevPage }}&per={{ .Per }}" class="btn btn-default {{ if not .ValidPrevPage }}disabled{{ end }}">Prev</a>
+<a href="{{ .Path }}?page={{ .NextPage }}&per={{ .Per }}" class="btn btn-default {{ if not .ValidNextPage }}disabled{{ end }}">Next</a>
+
+<a href="{{ .Path }}?page={{ .LastPage }}&per={{ .Per }}" class="btn btn-default">Last</a>
+
+<ul>
+  <li>
+  Total = {{ .Total }}
+  </li>
+  <li>
+  Page = {{ .Page }}
+  </li>
+  <li>
+  Per = {{ .Per }}
+  </li>
+  <li>
+  PrevPage = {{ .PrevPage }}
+  </li>
+  <li>
+  NextPage = {{ .NextPage }}
+  </li>
+  <li>
+  LastPage = {{ .LastPage }}
+  </li>
+</ul>
 {{ end }}

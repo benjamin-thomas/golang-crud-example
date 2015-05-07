@@ -26,8 +26,6 @@ func showCountry(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	limit := r.URL.Query().Get("limit")
-	fmt.Println("limit =", limit)
 	var (
 		name string
 	)
@@ -98,28 +96,39 @@ func editCountry(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "NOOP edit\n")
 }
 
+func mustAtoi(s string) int {
+	res, err := strconv.Atoi(s)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return res
+}
+
 func indexCountries(w http.ResponseWriter, r *http.Request) {
 	values := r.URL.Query()
-	limit := values.Get("limit")
-	if limit == "" {
-		limit = defaultLimit
+	page := values.Get("page")
+	if page == "" {
+		page = "1"
 	}
-	offset := values.Get("offset")
-	if offset == "" {
-		offset = defaultOffset
+	per := values.Get("per")
+	if per == "" {
+		per = defaultPer
 	}
 
 	var (
 		data struct { // data for the templates
-			Countries  []country
-			Offset     int
-			PrevOffset int
-			NextOffset int
-			Limit      int
-			From       int
-			To         int
-			Total      int
-			Path       string
+			Countries     []country
+			From          int
+			To            int
+			Total         int
+			LastPage      int
+			Path          string
+			Page          int
+			NextPage      int
+			PrevPage      int
+			ValidNextPage bool
+			ValidPrevPage bool
+			Per           int
 		}
 		c country
 	)
@@ -130,6 +139,14 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
+	data.Per = mustAtoi(per)
+	data.Page = mustAtoi(page)
+	if data.Page < 1 {
+		data.Page = 1
+	}
+	data.LastPage = (data.Total / data.Per) + 1
+	offset := data.Per * (data.Page - 1)
+
 	stmt = mustPrepare(`
 	SELECT  c.id
 				, c.name
@@ -137,35 +154,19 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 	ORDER BY c.name ASC
 	LIMIT $1 OFFSET $2
 	`)
-	rows, err := stmt.Query(&limit, &offset)
+	rows, err := stmt.Query(&data.Per, &offset)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
 
 	data.Path = r.URL.Path
-	data.Limit, err = strconv.Atoi(limit)
-	if err != nil {
-		log.Fatal(err)
-	}
-	data.Offset, err = strconv.Atoi(offset)
-	if err != nil {
-		log.Fatal(err)
-	}
-	data.NextOffset = data.Offset + data.Limit
 
-	if data.Offset == 0 {
-		data.PrevOffset = 0
-	} else {
-		data.PrevOffset = data.Offset - data.Limit
-	}
+	data.PrevPage = data.Page - 1
+	data.NextPage = data.Page + 1
 
-	data.From = data.Offset + 1
-	data.To = data.NextOffset
-	if data.NextOffset > data.Total {
-		data.NextOffset = data.Offset
-		data.To = data.Total
-	}
+	data.ValidPrevPage = data.PrevPage > 0
+	data.ValidNextPage = data.NextPage <= data.LastPage
 
 	for rows.Next() {
 		err := rows.Scan(&c.Id, &c.Name)

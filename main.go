@@ -19,6 +19,7 @@ import (
 var (
 	db               *sql.DB
 	defaultLimit     string = "10"
+	defaultPer       string = "10"
 	defaultOffset    string = "0"
 	stmtGetCountry   *sql.Stmt
 	stmtGetCountries *sql.Stmt
