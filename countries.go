@@ -188,11 +188,28 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf8")
 		w.Write(j)
 	} else {
-		t, err := template.ParseFiles(
+
+		t := template.New("app.html")
+		t.Funcs(template.FuncMap{
+			"dec": func(a, b int) int {
+				return b - a
+			},
+			"inc": func(a, b int) int {
+				return a + b
+			},
+		})
+
+		t, err = t.ParseFiles(
 			"tmpl/layout/app.html",
 			"tmpl/layout/pagination.html",
 			"tmpl/countries/index.html",
 		)
+
+		// t, err := template.ParseFiles(
+		//   "tmpl/layout/app.html",
+		//   "tmpl/layout/pagination.html",
+		//   "tmpl/countries/index.html",
+		// )
 		if err != nil {
 			log.Fatal(err)
 		}

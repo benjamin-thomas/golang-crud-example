@@ -2,10 +2,27 @@
 <a href="{{ .Path }}?page=1&per={{ .Per }}" class="btn btn-default">First</a>
 
 <a href="{{ .Path }}?page={{ .PrevPage }}&per={{ .Per }}" class="btn btn-default {{ if not .ValidPrevPage }}disabled{{ end }}">Prev</a>
+
+<!-- <a href="{{ .Path }}?page={{ .Page | dec 1 }}&per={{ .Per }}" class="btn btn-default">{{ .Page | dec 1 }}</a> -->
+<!-- <a href="{{ .Path }}?page={{ .Page | inc 1 }}&per={{ .Per }}" class="btn btn-default">{{ .Page | inc 1 }}</a> -->
+
 <a href="{{ .Path }}?page={{ .NextPage }}&per={{ .Per }}" class="btn btn-default {{ if not .ValidNextPage }}disabled{{ end }}">Next</a>
 
 <a href="{{ .Path }}?page={{ .LastPage }}&per={{ .Per }}" class="btn btn-default">Last</a>
 
+<p id="pagination-stats" class="disabled">Page {{ .Page }} out of {{ .LastPage }} ({{ .Total }} entries)</p>
+
+<form id="pagination-nav" action="{{ .Path }}" role="form">
+  <input type="number" min="1" name="page" value="{{ .Page }}">
+  <input type="number" step="5" min="5" name="per" value="{{ .Per }}">
+  <input type="submit" class="hidden">
+</form>
+
+<p>
+  Todo:
+  arrows left and right to navigate -1 +1
+  page up/dow to navigate -per +per
+</p>
 <ul>
   <li>
   Total = {{ .Total }}
