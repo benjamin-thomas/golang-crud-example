@@ -1,14 +1,14 @@
 {{ define "pagination" }}
-<a href="{{ .Path }}?page=1&per={{ .Per }}" class="btn btn-default">First</a>
+<a href="{{ .Path }}?page=1&per={{ .Per }}" class="btn btn-default {{ if .HideFirstLink }}disabled{{ end }}">First</a>
 
-<a href="{{ .Path }}?page={{ .PrevPage }}&per={{ .Per }}" class="btn btn-default {{ if not .ValidPrevPage }}disabled{{ end }}">Prev</a>
+<a href="{{ .Path }}?page={{ .PrevPage }}&per={{ .Per }}" id="pagination-prev" class="btn btn-default {{ if .HideFirstLink }}disabled{{ end }}">Prev</a>
 
 <!-- <a href="{{ .Path }}?page={{ .Page | dec 1 }}&per={{ .Per }}" class="btn btn-default">{{ .Page | dec 1 }}</a> -->
 <!-- <a href="{{ .Path }}?page={{ .Page | inc 1 }}&per={{ .Per }}" class="btn btn-default">{{ .Page | inc 1 }}</a> -->
 
-<a href="{{ .Path }}?page={{ .NextPage }}&per={{ .Per }}" class="btn btn-default {{ if not .ValidNextPage }}disabled{{ end }}">Next</a>
+<a href="{{ .Path }}?page={{ .NextPage }}&per={{ .Per }}" id="pagination-next" class="btn btn-default {{ if .HideLastLink }}disabled{{ end }}">Next</a>
 
-<a href="{{ .Path }}?page={{ .LastPage }}&per={{ .Per }}" class="btn btn-default">Last</a>
+<a href="{{ .Path }}?page={{ .LastPage }}&per={{ .Per }}" class="btn btn-default {{ if .HideLastLink }}disabled{{ end }}">Last</a>
 
 <p id="pagination-stats" class="disabled">Page {{ .Page }} out of {{ .LastPage }} ({{ .Total }} entries)</p>
 
@@ -18,11 +18,11 @@
   <input type="submit" class="hidden">
 </form>
 
+{{ if .Page | eq .LastPage }}
 <p>
-  Todo:
-  arrows left and right to navigate -1 +1
-  page up/dow to navigate -per +per
+do not display
 </p>
+{{ end }}
 <ul>
   <li>
   Total = {{ .Total }}

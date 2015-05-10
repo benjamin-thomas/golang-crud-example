@@ -124,10 +124,11 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 			LastPage      int
 			Path          string
 			Page          int
+			HideFirstLink bool
+			HideLastLink  bool
 			NextPage      int
 			PrevPage      int
 			ValidNextPage bool
-			ValidPrevPage bool
 			Per           int
 		}
 		c country
@@ -163,10 +164,17 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 	data.Path = r.URL.Path
 
 	data.PrevPage = data.Page - 1
+	if data.PrevPage < 1 {
+		data.PrevPage = 1
+	}
 	data.NextPage = data.Page + 1
+	if data.NextPage > data.LastPage {
+		data.NextPage = data.LastPage
+	}
 
-	data.ValidPrevPage = data.PrevPage > 0
 	data.ValidNextPage = data.NextPage <= data.LastPage
+	data.HideFirstLink = data.Page <= 1
+	data.HideLastLink = data.Page >= data.LastPage
 
 	for rows.Next() {
 		err := rows.Scan(&c.Id, &c.Name)
@@ -205,11 +213,6 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 			"tmpl/countries/index.html",
 		)
 
-		// t, err := template.ParseFiles(
-		//   "tmpl/layout/app.html",
-		//   "tmpl/layout/pagination.html",
-		//   "tmpl/countries/index.html",
-		// )
 		if err != nil {
 			log.Fatal(err)
 		}

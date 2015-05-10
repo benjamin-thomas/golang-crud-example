@@ -1,19 +1,39 @@
-(function() {
+/*global $ */
+/*jslint browser: true */
 
-    function initSaveShortcut() {
-        $(window).keydown(function(event) {
-            var KEY_ENTER = 13;
-            if(event.ctrlKey && (event.which === KEY_ENTER)) {
-                $(':submit').trigger('click');
-                // event.preventDefault();
+(function () {
+    'use strict';
+
+    function keysHandler(evt) {
+
+        var KEY_ENTER       = 13,
+            KEY_LEFT_ARROW  = 37,
+            KEY_RIGHT_ARROW = 39;
+
+        if (evt.ctrlKey) {
+            switch (evt.keyCode) {
+                case KEY_ENTER:
+                    $(':submit').trigger('click');
+                    break;
+                case KEY_LEFT_ARROW:
+                    window.location = $('#pagination-prev').attr('href');
+                    break;
+                case KEY_RIGHT_ARROW:
+                    window.location = $('#pagination-next').attr('href');
+                    break;
             }
-        });
+        }
     }
 
-    $(document).ready(function() {
+    function initKbdShortcuts() {
+        $(window).keydown(keysHandler);
+    }
 
-        initSaveShortcut();
+    $(document).ready(function () {
+
+        initKbdShortcuts();
         $('textarea').autosize();
 
     });
-})();
+
+}());
