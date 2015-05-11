@@ -4,6 +4,14 @@
 (function () {
     'use strict';
 
+
+    function ajaxLink(url, method) {
+        return $.ajax({
+            url: url,
+            type: method
+        });
+    }
+
     function keysHandler(evt) {
 
         var KEY_ENTER       = 13,
@@ -33,6 +41,28 @@
 
         initKbdShortcuts();
         $('textarea').autosize();
+
+        $('a[data-method="DELETE"]').click(function(e) {
+            e.preventDefault();
+
+            var that = this;
+
+            ajaxLink(this.href, 'DELETE')
+            .done(function(data) {
+                var remove = that.dataset.remove,
+                    redirect = that.dataset.redirect;
+
+                if (remove) {
+                    $('#' + remove).remove();
+                } else if (redirect) {
+                    window.location = redirect;
+                }
+            })
+            .fail(function(data) {
+                alert(data.status + ': ' + data.responseText);
+            });
+
+        });
 
     });
 

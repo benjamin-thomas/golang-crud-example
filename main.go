@@ -162,10 +162,6 @@ func BasicAuth(user, pass []byte, h http.Handler) http.Handler {
 	})
 }
 
-func httpMethodOverride(next http.Handler) http.Handler {
-	return handlers.HTTPMethodOverrideHandler(next)
-}
-
 func mustGetenv(env string) string {
 	s := os.Getenv(env)
 	if s == "" {
@@ -197,10 +193,8 @@ func middlewares(final http.Handler) http.Handler {
 
 	return chain(
 		timerMiddleware(
-			httpMethodOverride(
-				authenticate(
-					logger(final),
-				),
+			authenticate(
+				logger(final),
 			),
 		),
 	)
@@ -257,7 +251,7 @@ func main() {
 	r.HandleFunc("/api/countries/{id}", showCountry).Methods("GET")
 	r.HandleFunc("/countries", createCountry).Methods("POST")
 	r.HandleFunc("/countries/{id}", updateCountry).Methods("PUT", "PATCH")
-	r.HandleFunc("/countries/{id}", deleteCountry).Methods("DELETE")
+	r.HandleFunc("/api/countries/{id}", deleteCountry).Methods("DELETE")
 
 	r.HandleFunc("/countries/{id}/contracts", listCountry).Methods("GET")
 	r.HandleFunc("/countries/{id}/contracts/new", newCountry).Methods("GET")

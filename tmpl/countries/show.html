@@ -1,7 +1,17 @@
+{{ define "content" }}
 <h1>
   {{ .Name }}
 </h1>
 
-<p>
-The country {{ .Name }} has id number {{ .Id }}, and has special number: {{ .Id2 }}
-</p>
+<ul class="list-inline">
+  <li>
+    <a href="/countries">List</a>
+  </li>
+  <li>
+  <a href="{{ .Id }}/edit">Edit</a>
+  </li>
+  <li>
+  <a href="/api/countries/{{ .Id }}" data-method="DELETE" data-redirect="/countries">Delete</a>
+  </li>
+</ul>
+{{ end }}

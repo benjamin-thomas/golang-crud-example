@@ -11,14 +11,20 @@
         <tr>
           <th>ID</th>
           <th>Name</th>
+          <th>Link</th>
         </tr>
       </thead>
 
       <tbody>
       {{ range .Countries }}
-      <tr>
+      <tr id="country-{{ .Id }}">
         <td>{{ .Id }}</td>
         <td>{{ .Name }}</td>
+        <td>
+          <a href="/countries/{{ .Id }}">Show</a>
+          <a href="/countries/{{ .Id }}/edit">Edit</a>
+          <a href="/api/countries/{{ .Id }}" data-method="DELETE" data-remove="country-{{ .Id }}">Delete</a>
+        </td>
       </tr>
       {{ end }}
       </tbody>

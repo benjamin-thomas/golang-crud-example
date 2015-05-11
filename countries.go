@@ -35,7 +35,6 @@ func showCountry(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "No country with id: %d", id)
 		return
 	}
-
 	if err != nil {
 		log.Println("Failed on db fetch:", err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -52,7 +51,10 @@ func showCountry(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=utf8")
 		w.Write(j)
 	} else {
-		t, _ := template.ParseFiles("tmpl/countries/show.html")
+		t, _ := template.ParseFiles(
+			"tmpl/layout/app.html",
+			"tmpl/countries/show.html",
+		)
 		t.Execute(w, c)
 	}
 }
@@ -68,8 +70,23 @@ func createCountry(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteCountry(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "deleteCountry:", r.URL.Path)
-	fmt.Println("r.URL.Query() =", r.URL.Query())
+	vars := mux.Vars(r)
+
+	id := vars["id"]
+	stmt := mustPrepare("DELETE FROM countries WHERE id = $1")
+	res, err := stmt.Exec(id)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Could not delete country with id: '%s'", id), http.StatusInternalServerError)
+		return
+	}
+	affected, err := res.RowsAffected()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if affected == 0 {
+		http.Error(w, fmt.Sprintf("Country '%s' already deleted", id), http.StatusInternalServerError)
+		return
+	}
 }
 
 func destroyCountry(w http.ResponseWriter, r *http.Request, key string) {
@@ -122,8 +139,8 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 			To            int
 			Total         int
 			LastPage      int
-			Path          string
 			Page          int
+			Path          string
 			HideFirstLink bool
 			HideLastLink  bool
 			NextPage      int
@@ -161,8 +178,6 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	data.Path = r.URL.Path
-
 	data.PrevPage = data.Page - 1
 	if data.PrevPage < 1 {
 		data.PrevPage = 1
@@ -175,6 +190,8 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 	data.ValidNextPage = data.NextPage <= data.LastPage
 	data.HideFirstLink = data.Page <= 1
 	data.HideLastLink = data.Page >= data.LastPage
+
+	data.Path = r.URL.Path
 
 	for rows.Next() {
 		err := rows.Scan(&c.Id, &c.Name)

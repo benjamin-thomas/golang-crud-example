@@ -13,8 +13,11 @@
 <p id="pagination-stats" class="disabled">Page {{ .Page }} out of {{ .LastPage }} ({{ .Total }} entries)</p>
 
 <form id="pagination-nav" action="{{ .Path }}" role="form">
-  <input type="number" min="1" name="page" value="{{ .Page }}">
-  <input type="number" step="5" min="5" name="per" value="{{ .Per }}">
+  <label for="page">Page</label>
+  <input id="page" type="number" min="1" name="page" value="{{ .Page }}">
+
+  <label for="per">Per</label>
+  <input id="per" type="number" step="5" min="5" name="per" value="{{ .Per }}">
   <input type="submit" class="hidden">
 </form>
 
@@ -23,24 +26,5 @@
 do not display
 </p>
 {{ end }}
-<ul>
-  <li>
-  Total = {{ .Total }}
-  </li>
-  <li>
-  Page = {{ .Page }}
-  </li>
-  <li>
-  Per = {{ .Per }}
-  </li>
-  <li>
-  PrevPage = {{ .PrevPage }}
-  </li>
-  <li>
-  NextPage = {{ .NextPage }}
-  </li>
-  <li>
-  LastPage = {{ .LastPage }}
-  </li>
-</ul>
+
 {{ end }}
