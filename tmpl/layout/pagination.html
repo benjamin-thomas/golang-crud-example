@@ -20,11 +20,4 @@
   <input id="per" type="number" step="5" min="5" name="per" value="{{ .Per }}">
   <input type="submit" class="hidden">
 </form>
-
-{{ if .Page | eq .LastPage }}
-<p>
-do not display
-</p>
-{{ end }}
-
 {{ end }}
