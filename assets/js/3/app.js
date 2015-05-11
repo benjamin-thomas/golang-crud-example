@@ -64,6 +64,19 @@
 
         });
 
+        $('form[data-redirect]').submit(function(evt) {
+            evt.preventDefault();
+            var redirect = this.dataset.redirect;
+
+            $.post(redirect, $(this).serialize())
+            .done(function(data) {
+                window.location = redirect;
+            })
+            .fail(function(data) {
+                alert('Failed submission');
+            });
+        });
+
     });
 
 }());

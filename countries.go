@@ -65,8 +65,18 @@ func updateCountry(w http.ResponseWriter, r *http.Request) {
 }
 
 func createCountry(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "createCountry:", r.URL.Path)
-	fmt.Println("r.URL.Query() =", r.URL.Query())
+	var err = r.ParseForm()
+	if err != nil {
+		log.Fatal(err)
+	}
+	var name = r.FormValue("name")
+	stmt := mustPrepare("INSERT INTO countries (name) VALUES ($1)")
+
+	_, err = stmt.Exec(name)
+	if err != nil {
+		fmt.Println("Err:", err)
+		http.Error(w, fmt.Sprintf("Could not create country with name: %s", name), http.StatusInternalServerError)
+	}
 }
 
 func deleteCountry(w http.ResponseWriter, r *http.Request) {
@@ -95,9 +105,14 @@ func destroyCountry(w http.ResponseWriter, r *http.Request, key string) {
 }
 
 func newCountry(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "newCountry:", r.URL.Path)
-	fmt.Println("r.URL.Query() =", r.URL.Query())
-	fmt.Fprintf(w, "NOOP new")
+	var t, err = template.ParseFiles(
+		"tmpl/layout/app.html",
+		"tmpl/countries/new.html",
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	t.Execute(w, nil)
 }
 
 func listCountry(w http.ResponseWriter, r *http.Request) {
