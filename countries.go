@@ -11,7 +11,6 @@ import (
 	"text/template"
 
 	"github.com/gorilla/mux"
-	"github.com/k0kubun/pp"
 )
 
 type country struct {
@@ -64,7 +63,6 @@ func updateCountry(w http.ResponseWriter, r *http.Request) {
 	var vars = mux.Vars(r)
 
 	var err = r.ParseForm()
-	pp.Println(r)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -82,7 +80,6 @@ func updateCountry(w http.ResponseWriter, r *http.Request) {
 
 func createCountry(w http.ResponseWriter, r *http.Request) {
 	var err = r.ParseForm()
-	pp.Println(r)
 	if err != nil {
 		log.Fatal(err)
 	}

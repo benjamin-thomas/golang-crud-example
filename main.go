@@ -34,12 +34,7 @@ func mustPrepare(qry string) *sql.Stmt {
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	path := r.URL.Path
-	if path != "/" {
-		fmt.Fprintf(w, "Invalid path: %s\r\n", r.URL.Path)
-		return
-	}
-	fmt.Fprintf(w, "Handling root\r\n")
+	http.Redirect(w, r, "/countries", http.StatusFound)
 }
 
 // func contractsHandler(w http.ResponseWriter, r *http.Request, key string) {
@@ -241,7 +236,7 @@ func main() {
 	// http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("public/assets"))))
 	http.Handle("/assets/", middlewares(http.FileServer(http.Dir("public"))))
 	// http.Handle("/assets/", http.StripPrefix("public/assets", http.FileServer(http.Dir("public/assets"))))
-	r.HandleFunc("/", indexCountries).Methods("GET")
+	r.HandleFunc("/", rootHandler).Methods("GET")
 	r.HandleFunc("/countries/new", newCountry).Methods("GET")
 	r.HandleFunc("/countries/{id}/edit", editCountry).Methods("GET")
 
