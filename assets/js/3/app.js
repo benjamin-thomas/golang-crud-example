@@ -5,10 +5,11 @@
     'use strict';
 
 
-    function ajaxLink(url, method) {
+    function ajaxLink(url, method, data) {
         return $.ajax({
             url: url,
-            type: method
+            type: method,
+            data: data,
         });
     }
 
@@ -48,33 +49,37 @@
             var that = this;
 
             ajaxLink(this.href, 'DELETE')
-            .done(function(data) {
-                var remove = that.dataset.remove,
-                    redirect = that.dataset.redirect;
+                .done(function(data) {
+                    var remove = that.dataset.remove,
+                        redirect = that.dataset.redirect;
 
-                if (remove) {
-                    $('#' + remove).remove();
-                } else if (redirect) {
-                    window.location = redirect;
-                }
-            })
-            .fail(function(data) {
-                alert(data.status + ': ' + data.responseText);
-            });
+                    if (remove) {
+                        $('#' + remove).remove();
+                    } else if (redirect) {
+                        window.location = redirect;
+                    }
+                })
+                .fail(function(data) {
+                    alert(data.status + ': ' + data.responseText);
+                });
 
         });
 
-        $('form[data-redirect]').submit(function(evt) {
+        $('form').submit(function(evt) {
             evt.preventDefault();
+
+            var method = this.dataset.method || this.method;
             var redirect = this.dataset.redirect;
 
-            $.post(redirect, $(this).serialize())
-            .done(function(data) {
-                window.location = redirect;
-            })
-            .fail(function(data) {
-                alert('Failed submission');
-            });
+            ajaxLink(this.action, method, $(this).serialize())
+                .done(function(data) {
+                    if (redirect) {
+                        window.location = redirect;
+                    }
+                })
+                .fail(function(data) {
+                    alert('Failed ' + method + ' request!');
+                });
         });
 
     });

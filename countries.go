@@ -11,6 +11,7 @@ import (
 	"text/template"
 
 	"github.com/gorilla/mux"
+	"github.com/k0kubun/pp"
 )
 
 type country struct {
@@ -60,12 +61,28 @@ func showCountry(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateCountry(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "updateCountry:", r.URL.Path, "r.Method =", r.Method)
-	fmt.Println("r.URL.Query() =", r.URL.Query())
+	var vars = mux.Vars(r)
+
+	var err = r.ParseForm()
+	pp.Println(r)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var name = r.FormValue("name")
+	var id = vars["id"]
+
+	stmt := mustPrepare("UPDATE countries SET name = $1 WHERE id = $2")
+	_, err = stmt.Exec(name, id)
+	if err != nil {
+		fmt.Println("Err:", err)
+		http.Error(w, fmt.Sprintf("Could not create country with name: %s", name), http.StatusInternalServerError)
+	}
 }
 
 func createCountry(w http.ResponseWriter, r *http.Request) {
 	var err = r.ParseForm()
+	pp.Println(r)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -122,10 +139,21 @@ func listCountry(w http.ResponseWriter, r *http.Request) {
 
 func editCountry(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	fmt.Fprintln(w, "vars =", vars)
-	fmt.Fprintf(w, "editCountry: path=%s\n", r.URL.Path)
-	fmt.Println("r.URL.Query() =", r.URL.Query())
-	fmt.Fprintf(w, "NOOP edit\n")
+	var id = vars["id"]
+
+	var c = country{}
+	var stmt = mustPrepare("SELECT id, name FROM countries WHERE id = $1 ")
+	var err = stmt.QueryRow(id).Scan(&c.Id, &c.Name)
+
+	var t *template.Template
+	t, err = template.ParseFiles(
+		"tmpl/layout/app.html",
+		"tmpl/countries/edit.html",
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	t.Execute(w, c)
 }
 
 func mustAtoi(s string) int {
