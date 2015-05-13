@@ -62,50 +62,20 @@ func showCountry(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func updateCountry(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-
-	var err = r.ParseForm()
-	if err != nil {
-		log.Fatal(err)
-	}
+func updateCountry(w http.ResponseWriter, r *http.Request, id string) {
 	var name = r.FormValue("name")
 
-	_, err = crud.country.updateName(vars["id"], name)
+	_, err := crud.country.updateName(id, name)
 	if err != nil {
 		log.Println("Err:", err)
 		http.Error(w, fmt.Sprintf("Could not create country with name: %s", name), http.StatusInternalServerError)
 	}
 }
 
-// func updateCountry(w http.ResponseWriter, r *http.Request) {
-//   var vars = mux.Vars(r)
-
-//   var err = r.ParseForm()
-//   if err != nil {
-//     log.Fatal(err)
-//   }
-
-//   var name = r.FormValue("name")
-//   var id = vars["id"]
-
-//   stmt := mustPrepare("UPDATE countries SET name = $1 WHERE id = $2")
-//   _, err = stmt.Exec(name, id)
-//   if err != nil {
-//     fmt.Println("Err:", err)
-//     http.Error(w, fmt.Sprintf("Could not create country with name: %s", name), http.StatusInternalServerError)
-//   }
-// }
-
 func createCountry(w http.ResponseWriter, r *http.Request) {
-	var err = r.ParseForm()
-	if err != nil {
-		log.Fatal(err)
-	}
 	var name = r.FormValue("name")
-	stmt := mustPrepare("INSERT INTO countries (name) VALUES ($1)")
 
-	_, err = stmt.Exec(name)
+	_, err := crud.country.create(name)
 	if err != nil {
 		fmt.Println("Err:", err)
 		http.Error(w, fmt.Sprintf("Could not create country with name: %s", name), http.StatusInternalServerError)

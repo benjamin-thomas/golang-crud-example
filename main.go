@@ -195,6 +195,13 @@ func middlewares(final http.Handler) http.Handler {
 	)
 }
 
+func keyProvider(key string, fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		fn(w, r, vars[key])
+	}
+}
+
 // Injects middlewares while routing
 type routerHelper struct {
 	mux             *mux.Router
@@ -245,7 +252,7 @@ func main() {
 	r.HandleFunc("/countries/{id}", showCountry).Methods("GET")
 	r.HandleFunc("/api/countries/{id}", showCountry).Methods("GET")
 	r.HandleFunc("/countries", createCountry).Methods("POST")
-	r.HandleFunc("/countries/{id}", updateCountry).Methods("PUT", "PATCH")
+	r.HandleFunc("/countries/{id}", keyProvider("id", updateCountry)).Methods("PUT", "PATCH")
 	r.HandleFunc("/api/countries/{id}", deleteCountry).Methods("DELETE")
 
 	r.HandleFunc("/countries/{id}/contracts", listCountry).Methods("GET")
