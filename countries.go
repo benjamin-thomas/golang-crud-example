@@ -65,40 +65,28 @@ func showCountry(w http.ResponseWriter, r *http.Request) {
 func updateCountry(w http.ResponseWriter, r *http.Request, id string) {
 	var name = r.FormValue("name")
 
-	_, err := crud.countries.update(id, name)
+	err := crud.countries.update(id, name)
 	if err != nil {
-		log.Println("Err:", err)
-		http.Error(w, fmt.Sprintf("Could not create country with name: %s", name), http.StatusInternalServerError)
+		log.Println(err)
+		httpGenericErr(w)
 	}
 }
 
 func createCountry(w http.ResponseWriter, r *http.Request) {
 	var name = r.FormValue("name")
 
-	_, err := crud.countries.create(name)
+	err := crud.countries.create(name)
 	if err != nil {
-		fmt.Println("Err:", err)
-		http.Error(w, fmt.Sprintf("Could not create country with name: %s", name), http.StatusInternalServerError)
+		log.Println(err)
+		httpGenericErr(w)
 	}
 }
 
-func deleteCountry(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-
-	id := vars["id"]
-	stmt := mustPrepare("DELETE FROM countries WHERE id = $1")
-	res, err := stmt.Exec(id)
+func deleteCountry(w http.ResponseWriter, r *http.Request, id string) {
+	err := crud.countries.delete(id)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Could not delete country with id: '%s'", id), http.StatusInternalServerError)
-		return
-	}
-	affected, err := res.RowsAffected()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if affected == 0 {
-		http.Error(w, fmt.Sprintf("Country '%s' already deleted", id), http.StatusInternalServerError)
-		return
+		log.Println(err)
+		httpGenericErr(w)
 	}
 }
 

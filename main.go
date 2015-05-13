@@ -253,7 +253,7 @@ func main() {
 	r.HandleFunc("/api/countries/{id}", showCountry).Methods("GET")
 	r.HandleFunc("/countries", createCountry).Methods("POST")
 	r.HandleFunc("/countries/{id}", keyProvider("id", updateCountry)).Methods("PUT", "PATCH")
-	r.HandleFunc("/api/countries/{id}", deleteCountry).Methods("DELETE")
+	r.HandleFunc("/api/countries/{id}", keyProvider("id", deleteCountry)).Methods("DELETE")
 
 	r.HandleFunc("/countries/{id}/contracts", listCountry).Methods("GET")
 	r.HandleFunc("/countries/{id}/contracts/new", newCountry).Methods("GET")
