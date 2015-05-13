@@ -33,7 +33,7 @@
             }
         }
     }
-
+    
     function initKbdShortcuts() {
         $(window).keydown(keysHandler);
     }

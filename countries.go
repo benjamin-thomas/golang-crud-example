@@ -55,28 +55,47 @@ func showCountry(w http.ResponseWriter, r *http.Request) {
 			"tmpl/layout/app.html",
 			"tmpl/countries/show.html",
 		)
-		t.Execute(w, c)
+		err = t.Execute(w, c)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
 func updateCountry(w http.ResponseWriter, r *http.Request) {
-	var vars = mux.Vars(r)
+	vars := mux.Vars(r)
 
 	var err = r.ParseForm()
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	var name = r.FormValue("name")
-	var id = vars["id"]
 
-	stmt := mustPrepare("UPDATE countries SET name = $1 WHERE id = $2")
-	_, err = stmt.Exec(name, id)
+	_, err = crud.country.updateName(vars["id"], name)
 	if err != nil {
-		fmt.Println("Err:", err)
+		log.Println("Err:", err)
 		http.Error(w, fmt.Sprintf("Could not create country with name: %s", name), http.StatusInternalServerError)
 	}
 }
+
+// func updateCountry(w http.ResponseWriter, r *http.Request) {
+//   var vars = mux.Vars(r)
+
+//   var err = r.ParseForm()
+//   if err != nil {
+//     log.Fatal(err)
+//   }
+
+//   var name = r.FormValue("name")
+//   var id = vars["id"]
+
+//   stmt := mustPrepare("UPDATE countries SET name = $1 WHERE id = $2")
+//   _, err = stmt.Exec(name, id)
+//   if err != nil {
+//     fmt.Println("Err:", err)
+//     http.Error(w, fmt.Sprintf("Could not create country with name: %s", name), http.StatusInternalServerError)
+//   }
+// }
 
 func createCountry(w http.ResponseWriter, r *http.Request) {
 	var err = r.ParseForm()
@@ -126,7 +145,10 @@ func newCountry(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	t.Execute(w, nil)
+	err = t.Execute(w, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func listCountry(w http.ResponseWriter, r *http.Request) {
@@ -150,7 +172,11 @@ func editCountry(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	t.Execute(w, c)
+
+	err = t.Execute(w, c)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func mustAtoi(s string) int {
@@ -269,10 +295,13 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 			"tmpl/layout/pagination.html",
 			"tmpl/countries/index.html",
 		)
-
 		if err != nil {
 			log.Fatal(err)
 		}
-		t.Execute(w, data)
+
+		err = t.Execute(w, data)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
