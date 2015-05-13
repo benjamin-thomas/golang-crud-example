@@ -65,7 +65,7 @@ func showCountry(w http.ResponseWriter, r *http.Request) {
 func updateCountry(w http.ResponseWriter, r *http.Request, id string) {
 	var name = r.FormValue("name")
 
-	_, err := crud.country.updateName(id, name)
+	_, err := crud.countries.update(id, name)
 	if err != nil {
 		log.Println("Err:", err)
 		http.Error(w, fmt.Sprintf("Could not create country with name: %s", name), http.StatusInternalServerError)
@@ -75,7 +75,7 @@ func updateCountry(w http.ResponseWriter, r *http.Request, id string) {
 func createCountry(w http.ResponseWriter, r *http.Request) {
 	var name = r.FormValue("name")
 
-	_, err := crud.country.create(name)
+	_, err := crud.countries.create(name)
 	if err != nil {
 		fmt.Println("Err:", err)
 		http.Error(w, fmt.Sprintf("Could not create country with name: %s", name), http.StatusInternalServerError)
