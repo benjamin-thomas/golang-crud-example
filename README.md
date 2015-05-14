@@ -36,7 +36,7 @@ cat ./db/migrations/down/{02..01}.sql | ./bin/psql-pipe -a
 
 ## 3. Dump the schema
 ```bash
-./bin/pg_dump -s >./db/schema.sql
+./bin/pg_dump -s $PGDATABASE >./db/schema.sql
 ```
 
 ## 4 Seed the db

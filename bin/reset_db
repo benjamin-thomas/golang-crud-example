@@ -7,4 +7,4 @@ find ./db/migrations/up/ -type f -name "*.sql" | sort -n | xargs cat | ./bin/psq
 
 ./bin/psql-pipe < ./db/seed.sql
 
-./bin/pg_dump -s >./db/schema.sql
+./bin/pg_dump -s $PGDATABASE >./db/schema.sql
