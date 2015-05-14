@@ -25,14 +25,6 @@ var (
 	stmtGetCountries *sql.Stmt
 )
 
-func mustPrepare(qry string) *sql.Stmt {
-	stmt, err := db.Prepare(qry)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return stmt
-}
-
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/countries", http.StatusFound)
 }
@@ -97,11 +89,6 @@ func setupDB() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func setupStmts() {
-	stmtGetCountry = mustPrepare("SELECT name FROM countries WHERE id = $1")
-	stmtGetCountries = mustPrepare("SELECT id, name FROM countries LIMIT $1 OFFSET $2")
 }
 
 func injectKey(fn func(http.ResponseWriter, *http.Request, string), path string) http.HandlerFunc {
@@ -216,8 +203,6 @@ func main() {
 	setupDB()
 	defer db.Close()
 
-	setupStmts()
-
 	mux := mux.NewRouter()
 	r := &routerHelper{
 		mux:             mux,
@@ -245,19 +230,19 @@ func main() {
 	// http.Handle("/assets/", http.StripPrefix("public/assets", http.FileServer(http.Dir("public/assets"))))
 	r.HandleFunc("/", rootHandler).Methods("GET")
 	r.HandleFunc("/countries/new", newCountry).Methods("GET")
-	r.HandleFunc("/countries/{id}/edit", editCountry).Methods("GET")
+	r.HandleFunc("/countries/{id}/edit", keyProvider("id", editCountry)).Methods("GET")
 
 	r.HandleFunc("/api/countries", indexCountries).Methods("GET")
 	r.HandleFunc("/countries", indexCountries).Methods("GET")
-	r.HandleFunc("/countries/{id}", showCountry).Methods("GET")
-	r.HandleFunc("/api/countries/{id}", showCountry).Methods("GET")
+	r.HandleFunc("/countries/{id}", keyProvider("id", showCountry)).Methods("GET")
+	r.HandleFunc("/api/countries/{id}", keyProvider("id", showCountry)).Methods("GET")
 	r.HandleFunc("/countries", createCountry).Methods("POST")
 	r.HandleFunc("/countries/{id}", keyProvider("id", updateCountry)).Methods("PUT", "PATCH")
 	r.HandleFunc("/api/countries/{id}", keyProvider("id", deleteCountry)).Methods("DELETE")
 
 	r.HandleFunc("/countries/{id}/contracts", listCountry).Methods("GET")
 	r.HandleFunc("/countries/{id}/contracts/new", newCountry).Methods("GET")
-	r.HandleFunc("/countries/{id}/stats", showCountry).Methods("GET")
+	// r.HandleFunc("/countries/{id}/stats", showCountryStats).Methods("GET")
 
 	http.Handle("/", r.mux)
 	log.Fatal(http.ListenAndServe(":8080", nil))

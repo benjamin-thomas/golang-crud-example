@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,40 +8,15 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
-
-	"github.com/gorilla/mux"
 )
 
-type country struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
-}
-
-func showCountry(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-
-	id, err := strconv.Atoi(vars["id"])
+func showCountry(w http.ResponseWriter, r *http.Request, id string) {
+	c := &country{Id: id}
+	err := c.read()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		httpGenericErr(w)
 	}
-
-	var (
-		name string
-	)
-
-	err = stmtGetCountry.QueryRow(&id).Scan(&name)
-	if err == sql.ErrNoRows {
-		fmt.Fprintf(w, "No country with id: %d", id)
-		return
-	}
-	if err != nil {
-		log.Println("Failed on db fetch:", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprintf(w, "Oops, something went wrong")
-		return
-	}
-
-	c := country{id, name}
 	if strings.HasPrefix(r.URL.Path, "/api/") {
 		j, err := json.Marshal(c)
 		if err != nil {
@@ -65,7 +39,8 @@ func showCountry(w http.ResponseWriter, r *http.Request) {
 func updateCountry(w http.ResponseWriter, r *http.Request, id string) {
 	var name = r.FormValue("name")
 
-	err := crud.countries.update(id, name)
+	c := &country{Id: id, Name: name}
+	err := c.update()
 	if err != nil {
 		log.Println(err)
 		httpGenericErr(w)
@@ -75,7 +50,8 @@ func updateCountry(w http.ResponseWriter, r *http.Request, id string) {
 func createCountry(w http.ResponseWriter, r *http.Request) {
 	var name = r.FormValue("name")
 
-	err := crud.countries.create(name)
+	c := &country{Name: name}
+	err := c.create()
 	if err != nil {
 		log.Println(err)
 		httpGenericErr(w)
@@ -83,7 +59,8 @@ func createCountry(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteCountry(w http.ResponseWriter, r *http.Request, id string) {
-	err := crud.countries.delete(id)
+	c := &country{Id: id}
+	err := c.delete()
 	if err != nil {
 		log.Println(err)
 		httpGenericErr(w)
@@ -114,13 +91,9 @@ func listCountry(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("r.URL.Query() =", r.URL.Query())
 }
 
-func editCountry(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	var id = vars["id"]
-
-	var c = country{}
-	var stmt = mustPrepare("SELECT id, name FROM countries WHERE id = $1 ")
-	var err = stmt.QueryRow(id).Scan(&c.Id, &c.Name)
+func editCountry(w http.ResponseWriter, r *http.Request, id string) {
+	var c = country{Id: id}
+	err := c.read()
 
 	var t *template.Template
 	t, err = template.ParseFiles(
@@ -175,8 +148,7 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 		c country
 	)
 
-	stmt := mustPrepare("SELECT COUNT(*) FROM countries;")
-	err := stmt.QueryRow().Scan(&data.Total)
+	err := db.QueryRow("SELECT COUNT(*) FROM countries").Scan(&data.Total)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -189,14 +161,11 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 	data.LastPage = (data.Total / data.Per) + 1
 	offset := data.Per * (data.Page - 1)
 
-	stmt = mustPrepare(`
-	SELECT  c.id
-				, c.name
-	FROM countries AS c
-	ORDER BY c.name ASC
-	LIMIT $1 OFFSET $2
-	`)
-	rows, err := stmt.Query(&data.Per, &offset)
+	rows, err := db.Query(`SELECT c.id
+															, c.name
+												 FROM countries AS c
+												 ORDER BY c.name ASC
+												 LIMIT $1 OFFSET $2`, &data.Per, &offset)
 	if err != nil {
 		log.Fatal(err)
 	}
