@@ -10,7 +10,7 @@
 
 <a href="{{ .Path }}?page={{ .LastPage }}&per={{ .Per }}" class="btn btn-default {{ if .HideLastLink }}disabled{{ end }}">Last</a>
 
-<p id="pagination-stats" class="disabled">Page {{ .Page }} out of {{ .LastPage }} ({{ .Total }} entries)</p>
+<p id="pagination-stats" class="disabled">Page {{ .Page }} out of {{ .LastPage }} (<span id="pagination-total">{{ .Total }}</span> entries)</p>
 
 <form id="pagination-nav" action="{{ .Path }}" role="form">
   <label for="page">Page</label>

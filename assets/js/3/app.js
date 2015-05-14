@@ -33,7 +33,7 @@
             }
         }
     }
-    
+
     function initKbdShortcuts() {
         $(window).keydown(keysHandler);
     }
@@ -42,6 +42,12 @@
 
         initKbdShortcuts();
         $('textarea').autosize();
+
+        var $paginationTotal = $('#pagination-total');
+
+        $paginationTotal.on('click/delete', function(e) {
+            this.textContent = parseInt(this.textContent) - 1;
+        });
 
         $('a[data-method="DELETE"]').click(function(e) {
             e.preventDefault();
@@ -58,6 +64,7 @@
                     } else if (redirect) {
                         window.location = redirect;
                     }
+                    $paginationTotal.trigger('click/delete');
                 })
                 .fail(function(data) {
                     alert(data.status + ': ' + data.responseText);
