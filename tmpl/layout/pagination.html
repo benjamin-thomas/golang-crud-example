@@ -1,23 +1,18 @@
 {{ define "pagination" }}
-<a href="{{ .Path }}?page=1&per={{ .Per }}" class="btn btn-default {{ if .HideFirstLink }}disabled{{ end }}">First</a>
+<a href="{{ .Path }}?page=1&per={{ .Pagination.Per }}" class="btn btn-default {{ if .Pagination.HideFirstLink }}disabled{{ end }}">First</a>
+<a href="{{ .Path }}?page={{ .Pagination.PrevPage }}&per={{ .Pagination.Per }}" id="pagination-prev" class="btn btn-default {{ if .Pagination.HideFirstLink }}disabled{{ end }}">Prev</a>
 
-<a href="{{ .Path }}?page={{ .PrevPage }}&per={{ .Per }}" id="pagination-prev" class="btn btn-default {{ if .HideFirstLink }}disabled{{ end }}">Prev</a>
+<a href="{{ .Path }}?page={{ .Pagination.NextPage }}&per={{ .Pagination.Per }}" id="pagination-next" class="btn btn-default {{ if .Pagination.HideLastLink }}disabled{{ end }}">Next</a>
+<a href="{{ .Path }}?page={{ .Pagination.LastPage }}&per={{ .Pagination.Per }}" class="btn btn-default {{ if .Pagination.HideLastLink }}disabled{{ end }}">Last</a>
 
-<!-- <a href="{{ .Path }}?page={{ .Page | dec 1 }}&per={{ .Per }}" class="btn btn-default">{{ .Page | dec 1 }}</a> -->
-<!-- <a href="{{ .Path }}?page={{ .Page | inc 1 }}&per={{ .Per }}" class="btn btn-default">{{ .Page | inc 1 }}</a> -->
-
-<a href="{{ .Path }}?page={{ .NextPage }}&per={{ .Per }}" id="pagination-next" class="btn btn-default {{ if .HideLastLink }}disabled{{ end }}">Next</a>
-
-<a href="{{ .Path }}?page={{ .LastPage }}&per={{ .Per }}" class="btn btn-default {{ if .HideLastLink }}disabled{{ end }}">Last</a>
-
-<p id="pagination-stats" class="disabled">Page {{ .Page }} out of {{ .LastPage }} (<span id="pagination-total">{{ .Total }}</span> entries)</p>
+<p id="pagination-stats" class="disabled">Page {{ .Pagination.Page }} out of {{ .Pagination.LastPage }} (<span id="pagination-total">{{ .Total }}</span> entries)</p>
 
 <form id="pagination-nav" action="{{ .Path }}" role="form">
   <label for="page">Page</label>
-  <input id="page" type="number" min="1" name="page" value="{{ .Page }}">
+  <input id="page" type="number" min="1" name="page" value="{{ .Pagination.Page }}">
 
   <label for="per">Per</label>
-  <input id="per" type="number" step="5" min="5" name="per" value="{{ .Per }}">
+  <input id="per" type="number" step="5" min="5" name="per" value="{{ .Pagination.Per }}">
   <input type="submit" class="hidden">
 </form>
 {{ end }}

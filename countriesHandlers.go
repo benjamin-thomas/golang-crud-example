@@ -16,6 +16,7 @@ func showCountry(w http.ResponseWriter, r *http.Request, id string) {
 	if err != nil {
 		log.Println(err)
 		httpGenericErr(w)
+		return
 	}
 	if strings.HasPrefix(r.URL.Path, "/api/") {
 		j, err := json.Marshal(c)
@@ -44,6 +45,7 @@ func updateCountry(w http.ResponseWriter, r *http.Request, id string) {
 	if err != nil {
 		log.Println(err)
 		httpGenericErr(w)
+		return
 	}
 }
 
@@ -55,6 +57,7 @@ func createCountry(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		httpGenericErr(w)
+		return
 	}
 }
 
@@ -64,6 +67,7 @@ func deleteCountry(w http.ResponseWriter, r *http.Request, id string) {
 	if err != nil {
 		log.Println(err)
 		httpGenericErr(w)
+		return
 	}
 }
 
@@ -118,6 +122,8 @@ func mustAtoi(s string) int {
 	return res
 }
 
+// hideFirstLink, hideLastLink bool, path string
+
 func indexCountries(w http.ResponseWriter, r *http.Request) {
 	values := r.URL.Query()
 	page := values.Get("page")
@@ -131,61 +137,42 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 
 	var (
 		data struct { // data for the templates
-			Countries     []country
-			From          int
-			To            int
-			Total         int
-			LastPage      int
-			Page          int
-			Path          string
-			HideFirstLink bool
-			HideLastLink  bool
-			NextPage      int
-			PrevPage      int
-			ValidNextPage bool
-			Per           int
+			Countries  []country
+			From       int
+			To         int
+			Total      int
+			Path       string
+			Pagination pagination
 		}
 		c country
 	)
 
-	err := db.QueryRow("SELECT COUNT(*) FROM countries").Scan(&data.Total)
+	var err error
+	cs := countries{}
+
+	data.Total, err = cs.Count()
 	if err != nil {
-		log.Fatal(err)
+		httpGenericErr(w)
+		return
 	}
 
-	data.Per = mustAtoi(per)
-	data.Page = mustAtoi(page)
-	if data.Page < 1 {
-		data.Page = 1
-	}
-	data.LastPage = (data.Total / data.Per) + 1
-	offset := data.Per * (data.Page - 1)
-
-	rows, err := db.Query(`SELECT c.id
-															, c.name
-												 FROM countries AS c
-												 ORDER BY c.name ASC
-												 LIMIT $1 OFFSET $2`, &data.Per, &offset)
+	p, err := newPagination(per, page, data.Total)
 	if err != nil {
-		log.Fatal(err)
+		httpGenericErr(w)
+		return
+	}
+	data.Pagination = p
+
+	rows, err := cs.Index(p.Per, p.Page)
+	if err != nil {
+		httpGenericErr(w)
+		return
 	}
 	defer rows.Close()
 
-	data.PrevPage = data.Page - 1
-	if data.PrevPage < 1 {
-		data.PrevPage = 1
-	}
-	data.NextPage = data.Page + 1
-	if data.NextPage > data.LastPage {
-		data.NextPage = data.LastPage
-	}
-
-	data.ValidNextPage = data.NextPage <= data.LastPage
-	data.HideFirstLink = data.Page <= 1
-	data.HideLastLink = data.Page >= data.LastPage
-
 	data.Path = r.URL.Path
 
+	// push that into cs.Index()
 	for rows.Next() {
 		err := rows.Scan(&c.Id, &c.Name)
 		if err != nil {

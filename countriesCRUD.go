@@ -1,74 +1,22 @@
 package main
 
-import (
-	"database/sql"
-	"errors"
-	"fmt"
-)
+import "database/sql"
 
-type country struct {
-	Id   string `json:"id"`
-	Name string `json:"name"`
+type countries struct {
 }
 
-func (c *country) create() error {
-	res, err := db.Exec("INSERT INTO countries (name) VALUES ($1)", c.Name)
-	if err != nil {
-		return err
-	}
-
-	affected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if affected == 0 {
-		return errors.New(funcName() + ": Failed to create country")
-	}
-	return nil
+func (c *countries) Count() (int, error) {
+	var count int
+	err := db.QueryRow("SELECT COUNT(*) FROM countries").Scan(&count)
+	return count, err
 }
 
-func (c *country) read() error {
-	err := db.QueryRow("SELECT name FROM countries WHERE id = $1", &c.Id).Scan(&c.Name)
-	if err == sql.ErrNoRows {
-		return err
-	}
-	if err != nil {
-		return err
-	}
-	return nil
-}
+func (c *countries) Index(per, page int) (*sql.Rows, error) {
+	offset := per * (page - 1)
+	return db.Query(`SELECT c.id
+															, c.name
+												 FROM countries AS c
+												 ORDER BY c.name ASC
+												 LIMIT $1 OFFSET $2`, &per, &offset)
 
-func (c *country) update() error {
-	res, err := db.Exec("UPDATE countries SET name = $2 WHERE id = $1", c.Id, c.Name)
-	if err != nil {
-		return err
-	}
-
-	affected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if affected == 0 {
-		return fmt.Errorf("%s: Failed to update country: %+v", c)
-	}
-	return nil
-}
-
-func (c *country) delete() error {
-	res, err := db.Exec("DELETE FROM countries WHERE id = $1", c.Id)
-	if err != nil {
-		return err
-	}
-
-	affected, err := res.RowsAffected()
-	if err != nil {
-		return err
-	}
-
-	if affected == 0 {
-		return fmt.Errorf("%s: Failed to update country: %+v", c)
-	}
-	return nil
 }
