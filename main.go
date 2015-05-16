@@ -240,7 +240,6 @@ func main() {
 	r.HandleFunc("/countries/{id}", keyProvider("id", updateCountry)).Methods("PUT", "PATCH")
 	r.HandleFunc("/api/countries/{id}", keyProvider("id", deleteCountry)).Methods("DELETE")
 
-	r.HandleFunc("/countries/{id}/contracts", listCountry).Methods("GET")
 	r.HandleFunc("/countries/{id}/contracts/new", newCountry).Methods("GET")
 	// r.HandleFunc("/countries/{id}/stats", showCountryStats).Methods("GET")
 

@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-	"strings"
 )
 
 func showCountry(w http.ResponseWriter, r *http.Request, id string) {
@@ -15,7 +13,7 @@ func showCountry(w http.ResponseWriter, r *http.Request, id string) {
 		httpGenericErr(w)
 		return
 	}
-	if strings.HasPrefix(r.URL.Path, "/api/") {
+	if isAPIPath(r.URL.Path) {
 		renderJSON(w, c)
 	} else {
 		renderHTML(w, c, "countries/show")
@@ -107,7 +105,7 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.HasPrefix(r.URL.Path, "/api/") {
+	if isAPIPath(r.URL.Path) {
 		renderJSON(w, tmplData.Countries)
 	} else {
 		renderHTML(w, tmplData, "countries/index")
