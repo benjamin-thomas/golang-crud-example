@@ -56,18 +56,8 @@ func deleteCountry(w http.ResponseWriter, r *http.Request, id string) {
 	}
 }
 
-func destroyCountry(w http.ResponseWriter, r *http.Request, key string) {
-	fmt.Fprintln(w, "destroyCountry:", r.URL.Path, "key=", key)
-	fmt.Println("r.URL.Query() =", r.URL.Query())
-}
-
 func newCountry(w http.ResponseWriter, r *http.Request) {
 	renderHTML(w, nil, "countries/new")
-}
-
-func listCountry(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "listCountry:", r.URL.Path)
-	fmt.Println("r.URL.Query() =", r.URL.Query())
 }
 
 func editCountry(w http.ResponseWriter, r *http.Request, id string) {
