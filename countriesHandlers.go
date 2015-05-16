@@ -135,58 +135,36 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 		per = defaultPer
 	}
 
-	var (
-		data struct { // data for the templates
-			Countries  []country
-			From       int
-			To         int
-			Total      int
-			Path       string
-			Pagination pagination
-		}
-		c country
-	)
+	var tmplData struct {
+		Path       string
+		Pagination pagination
+		Countries  []country
+	}
+	tmplData.Path = r.URL.Path
 
-	var err error
 	cs := countries{}
 
-	data.Total, err = cs.Count()
+	count, err := cs.Count()
 	if err != nil {
 		httpGenericErr(w)
 		return
 	}
 
-	p, err := newPagination(per, page, data.Total)
+	p, err := newPagination(per, page, count)
 	if err != nil {
 		httpGenericErr(w)
 		return
 	}
-	data.Pagination = p
+	tmplData.Pagination = p
 
-	rows, err := cs.Index(p.Per, p.Page)
+	tmplData.Countries, err = cs.Index(p.Per, p.Page)
 	if err != nil {
 		httpGenericErr(w)
 		return
-	}
-	defer rows.Close()
-
-	data.Path = r.URL.Path
-
-	// push that into cs.Index()
-	for rows.Next() {
-		err := rows.Scan(&c.Id, &c.Name)
-		if err != nil {
-			log.Fatal(err)
-		}
-		data.Countries = append(data.Countries, c)
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	if strings.HasPrefix(r.URL.Path, "/api/") {
-		j, err := json.Marshal(data.Countries)
+		j, err := json.Marshal(tmplData.Countries)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -194,17 +172,7 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 		w.Write(j)
 	} else {
 
-		t := template.New("app.html")
-		t.Funcs(template.FuncMap{
-			"dec": func(a, b int) int {
-				return b - a
-			},
-			"inc": func(a, b int) int {
-				return a + b
-			},
-		})
-
-		t, err = t.ParseFiles(
+		t, err := template.ParseFiles(
 			"tmpl/layout/app.html",
 			"tmpl/layout/pagination.html",
 			"tmpl/countries/index.html",
@@ -213,7 +181,7 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 
-		err = t.Execute(w, data)
+		err = t.Execute(w, tmplData)
 		if err != nil {
 			log.Fatal(err)
 		}

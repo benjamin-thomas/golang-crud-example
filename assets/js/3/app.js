@@ -43,7 +43,7 @@
         initKbdShortcuts();
         $('textarea').autosize();
 
-        var $paginationTotal = $('#pagination-total');
+        var $paginationTotal = $('#pagination-count');
 
         $paginationTotal.on('click/delete', function(e) {
             this.textContent = parseInt(this.textContent) - 1;
@@ -72,7 +72,7 @@
 
         });
 
-        $('form').submit(function(evt) {
+        $('form[data-redirect]').submit(function(evt) {
             evt.preventDefault();
 
             var method = this.dataset.method || this.method;
@@ -80,9 +80,7 @@
 
             ajaxLink(this.action, method, $(this).serialize())
                 .done(function(data) {
-                    if (redirect) {
-                        window.location = redirect;
-                    }
+                    window.location = redirect;
                 })
                 .fail(function(data) {
                     alert('Failed ' + method + ' request!');

@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 type pagination struct {
-	Per, Page, PrevPage, NextPage, LastPage int
+	Per, Page, PrevPage, NextPage, LastPage, Count int
 }
 
 func newPagination(per, page string, count int) (pagination, error) {
@@ -11,6 +11,7 @@ func newPagination(per, page string, count int) (pagination, error) {
 
 	p.Per = mustAtoi(per)
 	p.Page = mustAtoi(page)
+	p.Count = count
 
 	if p.Page < 1 {
 		p.Page = 1
