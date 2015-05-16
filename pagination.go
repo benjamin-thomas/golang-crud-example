@@ -1,16 +1,35 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 type pagination struct {
 	Per, Page, PrevPage, NextPage, LastPage, Count int
 }
 
 func newPagination(per, page string, count int) (pagination, error) {
-	p := pagination{}
+	if page == "" {
+		page = "1"
+	}
+	if per == "" {
+		per = defaultPer
+	}
 
-	p.Per = mustAtoi(per)
-	p.Page = mustAtoi(page)
+	p := pagination{}
+	var err error
+
+	p.Per, err = strconv.Atoi(per)
+	if err != nil {
+		return p, err
+	}
+
+	p.Page, err = strconv.Atoi(page)
+	if err != nil {
+		return p, err
+	}
+
 	p.Count = count
 
 	if p.Page < 1 {

@@ -1,13 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
-	"text/template"
 )
 
 func showCountry(w http.ResponseWriter, r *http.Request, id string) {
@@ -19,21 +16,9 @@ func showCountry(w http.ResponseWriter, r *http.Request, id string) {
 		return
 	}
 	if strings.HasPrefix(r.URL.Path, "/api/") {
-		j, err := json.Marshal(c)
-		if err != nil {
-			log.Fatal(err)
-		}
-		w.Header().Set("Content-Type", "application/json; charset=utf8")
-		w.Write(j)
+		renderJSON(w, c)
 	} else {
-		t, _ := template.ParseFiles(
-			"tmpl/layout/app.html",
-			"tmpl/countries/show.html",
-		)
-		err = t.Execute(w, c)
-		if err != nil {
-			log.Fatal(err)
-		}
+		renderHTML(w, c, "countries/show")
 	}
 }
 
@@ -77,17 +62,7 @@ func destroyCountry(w http.ResponseWriter, r *http.Request, key string) {
 }
 
 func newCountry(w http.ResponseWriter, r *http.Request) {
-	var t, err = template.ParseFiles(
-		"tmpl/layout/app.html",
-		"tmpl/countries/new.html",
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = t.Execute(w, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	renderHTML(w, nil, "countries/new")
 }
 
 func listCountry(w http.ResponseWriter, r *http.Request) {
@@ -98,42 +73,19 @@ func listCountry(w http.ResponseWriter, r *http.Request) {
 func editCountry(w http.ResponseWriter, r *http.Request, id string) {
 	var c = country{Id: id}
 	err := c.read()
-
-	var t *template.Template
-	t, err = template.ParseFiles(
-		"tmpl/layout/app.html",
-		"tmpl/countries/edit.html",
-	)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		httpGenericErr(w)
+		return
 	}
 
-	err = t.Execute(w, c)
-	if err != nil {
-		log.Fatal(err)
-	}
+	renderHTML(w, c, "countries/edit")
 }
-
-func mustAtoi(s string) int {
-	res, err := strconv.Atoi(s)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return res
-}
-
-// hideFirstLink, hideLastLink bool, path string
 
 func indexCountries(w http.ResponseWriter, r *http.Request) {
 	values := r.URL.Query()
 	page := values.Get("page")
-	if page == "" {
-		page = "1"
-	}
 	per := values.Get("per")
-	if per == "" {
-		per = defaultPer
-	}
 
 	var tmplData struct {
 		Path       string
@@ -143,15 +95,16 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 	tmplData.Path = r.URL.Path
 
 	cs := countries{}
-
 	count, err := cs.Count()
 	if err != nil {
+		log.Println(err)
 		httpGenericErr(w)
 		return
 	}
 
 	p, err := newPagination(per, page, count)
 	if err != nil {
+		log.Println(err)
 		httpGenericErr(w)
 		return
 	}
@@ -159,31 +112,14 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 
 	tmplData.Countries, err = cs.Index(p.Per, p.Page)
 	if err != nil {
+		log.Println(err)
 		httpGenericErr(w)
 		return
 	}
 
 	if strings.HasPrefix(r.URL.Path, "/api/") {
-		j, err := json.Marshal(tmplData.Countries)
-		if err != nil {
-			log.Fatal(err)
-		}
-		w.Header().Set("Content-Type", "application/json; charset=utf8")
-		w.Write(j)
+		renderJSON(w, tmplData.Countries)
 	} else {
-
-		t, err := template.ParseFiles(
-			"tmpl/layout/app.html",
-			"tmpl/layout/pagination.html",
-			"tmpl/countries/index.html",
-		)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		err = t.Execute(w, tmplData)
-		if err != nil {
-			log.Fatal(err)
-		}
+		renderHTML(w, tmplData, "countries/index")
 	}
 }
