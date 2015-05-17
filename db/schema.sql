@@ -155,6 +155,42 @@ ALTER SEQUENCE countries_id_seq OWNED BY countries.id;
 
 
 --
+-- Name: country_stats; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE country_stats (
+    id integer NOT NULL,
+    country_id integer NOT NULL,
+    population_count integer NOT NULL,
+    created_on timestamp without time zone DEFAULT now() NOT NULL,
+    updated_on timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE country_stats OWNER TO postgres;
+
+--
+-- Name: country_stats_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE country_stats_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE country_stats_id_seq OWNER TO postgres;
+
+--
+-- Name: country_stats_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE country_stats_id_seq OWNED BY country_stats.id;
+
+
+--
 -- Name: migrations; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -226,6 +262,13 @@ ALTER TABLE ONLY countries ALTER COLUMN id SET DEFAULT nextval('countries_id_seq
 -- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
+ALTER TABLE ONLY country_stats ALTER COLUMN id SET DEFAULT nextval('country_stats_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
 ALTER TABLE ONLY zip_codes ALTER COLUMN id SET DEFAULT nextval('zip_codes_id_seq'::regclass);
 
 
@@ -251,6 +294,14 @@ ALTER TABLE ONLY cities
 
 ALTER TABLE ONLY countries
     ADD CONSTRAINT countries_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: country_stats_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY country_stats
+    ADD CONSTRAINT country_stats_pkey PRIMARY KEY (id);
 
 
 --
@@ -280,6 +331,13 @@ CREATE UNIQUE INDEX cities_name_uidx ON cities USING btree (name);
 --
 
 CREATE UNIQUE INDEX countries_name_uidx ON countries USING btree (name);
+
+
+--
+-- Name: country_stats_country_id_uidx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE UNIQUE INDEX country_stats_country_id_uidx ON country_stats USING btree (country_id);
 
 
 --
@@ -318,6 +376,13 @@ CREATE TRIGGER countries_touch_trg BEFORE UPDATE ON countries FOR EACH ROW EXECU
 
 
 --
+-- Name: country_stats_touch_trg; Type: TRIGGER; Schema: public; Owner: postgres
+--
+
+CREATE TRIGGER country_stats_touch_trg BEFORE UPDATE ON country_stats FOR EACH ROW EXECUTE PROCEDURE touch();
+
+
+--
 -- Name: zip_codes_touch_trg; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
@@ -338,6 +403,14 @@ ALTER TABLE ONLY addresses
 
 ALTER TABLE ONLY cities
     ADD CONSTRAINT cities_country_id_fkey FOREIGN KEY (country_id) REFERENCES countries(id);
+
+
+--
+-- Name: country_stats_country_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY country_stats
+    ADD CONSTRAINT country_stats_country_id_fkey FOREIGN KEY (country_id) REFERENCES countries(id);
 
 
 --

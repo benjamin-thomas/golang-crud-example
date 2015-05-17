@@ -20,6 +20,22 @@ func showCountry(w http.ResponseWriter, r *http.Request, id int) {
 	}
 }
 
+func showCountryStats(w http.ResponseWriter, r *http.Request, id int) {
+	// TODO: WIP
+	c := &country{Id: id}
+	err := c.stats()
+	if err != nil {
+		log.Println(err)
+		httpGenericErr(w)
+		return
+	}
+	if isAPIPath(r.URL.Path) {
+		renderJSON(w, c)
+	} else {
+		renderHTML(w, c, "countries/stats")
+	}
+}
+
 func updateCountry(w http.ResponseWriter, r *http.Request, id int) {
 	var name = r.FormValue("name")
 

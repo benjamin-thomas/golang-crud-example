@@ -7,8 +7,9 @@ import (
 )
 
 type country struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+	Id              int           `json:"id"`
+	Name            string        `json:"name"`
+	PopulationCount sql.NullInt64 `json:populationCount`
 }
 
 func (c *country) create() error {
@@ -69,6 +70,24 @@ func (c *country) delete() error {
 
 	if affected == 0 {
 		return fmt.Errorf("%s: Failed to update country: %+v", c)
+	}
+	return nil
+}
+
+func (c *country) stats() error {
+	err := db.QueryRow(`
+	SELECT c.name
+			 , cs.population_count
+	FROM countries AS c
+	LEFT JOIN country_stats AS cs
+	ON cs.country_id = c.id
+	WHERE c.id = $1
+	`, &c.Id).Scan(&c.Name, &c.PopulationCount)
+	if err == sql.ErrNoRows {
+		return err
+	}
+	if err != nil {
+		return err
 	}
 	return nil
 }

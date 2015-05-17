@@ -216,6 +216,11 @@ INSERT INTO cities (country_id, name) VALUES
   (uk_id, 'London'),
   (uk_id, 'Oxford'),
   (uk_id, 'Brighton');
+
+INSERT INTO country_stats (country_id, population_count) VALUES
+  (france_id, 66808074),
+  (uk_id, 64812393);
+
 END $$;
 
 DO $$

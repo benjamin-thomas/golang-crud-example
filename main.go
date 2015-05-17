@@ -268,7 +268,7 @@ func main() {
 	r.HandleFunc("/api/countries/{id}", intKeyProvider("id", deleteCountry)).Methods("DELETE")
 
 	r.HandleFunc("/countries/{id}/contracts/new", newCountry).Methods("GET")
-	// r.HandleFunc("/countries/{id}/stats", showCountryStats).Methods("GET")
+	r.HandleFunc("/countries/{id}/stats", intKeyProvider("id", showCountryStats)).Methods("GET")
 
 	http.Handle("/", r.mux)
 	log.Fatal(http.ListenAndServe(":8080", nil))

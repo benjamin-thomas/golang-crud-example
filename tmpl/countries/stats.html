@@ -1,0 +1,14 @@
+{{ define "content" }}
+<h1>
+  Stats for {{ .Name }}
+</h1>
+
+<p>
+{{ if .PopulationCount.Valid }}
+Population for {{ .Name }}: {{ .PopulationCount.Value }}
+{{ else }}
+{{ .Name }} doesn't have any stats available.
+{{ end }}
+</p>
+
+{{ end }}
