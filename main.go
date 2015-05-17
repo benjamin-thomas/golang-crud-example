@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gorilla/handlers"
@@ -182,10 +183,36 @@ func middlewares(final http.Handler) http.Handler {
 	)
 }
 
-func keyProvider(key string, fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+func stringKeyProvider(key string, fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		fn(w, r, vars[key])
+		k, ok := vars[key]
+		if !ok {
+			log.Printf("stringKeyProvider: key '%s' not found\n", key)
+			httpGenericErr(w)
+		} else {
+			fn(w, r, k)
+		}
+	}
+}
+
+func intKeyProvider(key string, fn func(http.ResponseWriter, *http.Request, int)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		k, ok := vars[key]
+		if !ok {
+			log.Printf("intKeyProvider: key '%s' not found\n", key)
+			httpGenericErr(w)
+		} else {
+			n, err := strconv.Atoi(k)
+			if err != nil {
+				log.Println(err)
+				httpGenericErr(w)
+				return
+			}
+
+			fn(w, r, n)
+		}
 	}
 }
 
@@ -230,15 +257,15 @@ func main() {
 	// http.Handle("/assets/", http.StripPrefix("public/assets", http.FileServer(http.Dir("public/assets"))))
 	r.HandleFunc("/", rootHandler).Methods("GET")
 	r.HandleFunc("/countries/new", newCountry).Methods("GET")
-	r.HandleFunc("/countries/{id}/edit", keyProvider("id", editCountry)).Methods("GET")
+	r.HandleFunc("/countries/{id}/edit", intKeyProvider("id", editCountry)).Methods("GET")
 
 	r.HandleFunc("/api/countries", indexCountries).Methods("GET")
 	r.HandleFunc("/countries", indexCountries).Methods("GET")
-	r.HandleFunc("/countries/{id}", keyProvider("id", showCountry)).Methods("GET")
-	r.HandleFunc("/api/countries/{id}", keyProvider("id", showCountry)).Methods("GET")
+	r.HandleFunc("/countries/{id}", intKeyProvider("id", showCountry)).Methods("GET")
+	r.HandleFunc("/api/countries/{id}", intKeyProvider("id", showCountry)).Methods("GET")
 	r.HandleFunc("/countries", createCountry).Methods("POST")
-	r.HandleFunc("/countries/{id}", keyProvider("id", updateCountry)).Methods("PUT", "PATCH")
-	r.HandleFunc("/api/countries/{id}", keyProvider("id", deleteCountry)).Methods("DELETE")
+	r.HandleFunc("/countries/{id}", intKeyProvider("id", updateCountry)).Methods("PUT", "PATCH")
+	r.HandleFunc("/api/countries/{id}", intKeyProvider("id", deleteCountry)).Methods("DELETE")
 
 	r.HandleFunc("/countries/{id}/contracts/new", newCountry).Methods("GET")
 	// r.HandleFunc("/countries/{id}/stats", showCountryStats).Methods("GET")

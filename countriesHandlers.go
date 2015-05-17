@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-func showCountry(w http.ResponseWriter, r *http.Request, id string) {
+func showCountry(w http.ResponseWriter, r *http.Request, id int) {
 	c := &country{Id: id}
 	err := c.read()
 	if err != nil {
@@ -20,7 +20,7 @@ func showCountry(w http.ResponseWriter, r *http.Request, id string) {
 	}
 }
 
-func updateCountry(w http.ResponseWriter, r *http.Request, id string) {
+func updateCountry(w http.ResponseWriter, r *http.Request, id int) {
 	var name = r.FormValue("name")
 
 	c := &country{Id: id, Name: name}
@@ -44,7 +44,7 @@ func createCountry(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func deleteCountry(w http.ResponseWriter, r *http.Request, id string) {
+func deleteCountry(w http.ResponseWriter, r *http.Request, id int) {
 	c := &country{Id: id}
 	err := c.delete()
 	if err != nil {
@@ -58,7 +58,7 @@ func newCountry(w http.ResponseWriter, r *http.Request) {
 	renderHTML(w, nil, "countries/new")
 }
 
-func editCountry(w http.ResponseWriter, r *http.Request, id string) {
+func editCountry(w http.ResponseWriter, r *http.Request, id int) {
 	var c = country{Id: id}
 	err := c.read()
 	if err != nil {
