@@ -9,7 +9,9 @@ import (
 type country struct {
 	Id              int           `json:"id"`
 	Name            string        `json:"name"`
+	HasStats        bool          `json:hasStats`
 	PopulationCount sql.NullInt64 `json:populationCount`
+	Cities          []city        `json:cities`
 }
 
 func (c *country) create() error {
@@ -30,7 +32,15 @@ func (c *country) create() error {
 }
 
 func (c *country) read() error {
-	err := db.QueryRow("SELECT name FROM countries WHERE id = $1", &c.Id).Scan(&c.Name)
+	err := db.QueryRow(`
+SELECT c.name
+     , (cs.id IS NOT NULL) AS has_stats
+  FROM countries AS c
+  LEFT
+  JOIN country_stats AS cs
+    ON cs.country_id = c.id
+ WHERE c.id          = $1 ;
+	`, &c.Id).Scan(&c.Name, &c.HasStats)
 	if err == sql.ErrNoRows {
 		return err
 	}
@@ -76,16 +86,52 @@ func (c *country) delete() error {
 
 func (c *country) stats() error {
 	err := db.QueryRow(`
-	SELECT c.name
-			 , cs.population_count
-	FROM countries AS c
-	LEFT JOIN country_stats AS cs
-	ON cs.country_id = c.id
-	WHERE c.id = $1
-	`, &c.Id).Scan(&c.Name, &c.PopulationCount)
+		SELECT c.name
+				 , cs.population_count
+			FROM countries AS c
+			LEFT
+			JOIN country_stats AS cs
+				ON cs.country_id = c.id
+		 WHERE c.id          = $1;
+		`, &c.Id).Scan(&c.Name, &c.PopulationCount)
 	if err == sql.ErrNoRows {
 		return err
 	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type city struct {
+	Id   int    `json: id`
+	Name string `json: name`
+}
+
+func (c *country) indexCities() error {
+	rows, err := db.Query(`
+		SELECT c.name
+		     , ct.id AS city_id
+		     , ct.name AS city_name
+		  FROM countries AS c
+		  LEFT
+		  JOIN cities AS ct
+		    ON ct.country_id = c.id
+		 WHERE c.id          = $1;
+		`, &c.Id)
+
+	defer rows.Close()
+
+	var ct city
+	for rows.Next() {
+		err = rows.Scan(&c.Name, &ct.Id, &ct.Name) // FIXME: must I override &c.Name over and over? Or use 2 queries?
+		if err != nil {
+			return err
+		}
+		c.Cities = append(c.Cities, ct)
+	}
+
+	err = rows.Err()
 	if err != nil {
 		return err
 	}

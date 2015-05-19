@@ -1,17 +1,35 @@
 {{ define "content" }}
-<h1>
-  {{ .Name }}
-</h1>
 
-<ul class="list-inline">
-  <li>
-    <a href="/countries">List</a>
-  </li>
-  <li>
-  <a href="{{ .Id }}/edit">Edit</a>
-  </li>
-  <li>
-  <a href="/api/countries/{{ .Id }}" data-method="DELETE" data-redirect="/countries">Delete</a>
-  </li>
-</ul>
+  <h1>
+    {{ .Name }}
+  </h1>
+
+
+  <ul class="list-inline">
+    <li>
+      <a href="/countries">List</a>
+    </li>
+    <li>
+    <a href="{{ .Id }}/edit">Edit</a>
+    </li>
+    <li>
+    <a href="/api/countries/{{ .Id }}" data-method="DELETE" data-redirect="/countries">Delete</a>
+    </li>
+
+    {{ if .HasStats }}
+    <li>
+    <a href="{{ .Id }}/stats">Stats</a>
+    </li>
+    {{ end }}
+
+    <li>
+    <a href="{{ .Id }}/cities">Cities</a>
+    </li>
+
+  </ul>
+
+  {{ if not .HasStats }}
+  This country does not have stats available
+  {{ end }}
+
 {{ end }}

@@ -1,6 +1,7 @@
 {{ define "content" }}
+
 <h1>
-  Listing Countries
+  Listing Cities for {{ .Name }}
 </h1>
 
 <div class="responsive-table">
@@ -11,21 +12,19 @@
         <tr>
           <th>ID</th>
           <th>Name</th>
-          <th>Has stats</th>
-          <th>Link</th>
+          <th></th>
         </tr>
       </thead>
 
       <tbody>
-      {{ range .Countries }}
-      <tr id="country-{{ .Id }}">
+      {{ range .Cities }}
+      <tr id="city-{{ .Id }}">
         <td>{{ .Id }}</td>
         <td>{{ .Name }}</td>
-        <td>{{ .HasStats }}</td>
         <td>
-          <a href="/countries/{{ .Id }}">Show</a>
-          <a href="/countries/{{ .Id }}/edit">Edit</a>
-          <a href="/api/countries/{{ .Id }}" data-method="DELETE" data-remove="country-{{ .Id }}">Delete</a>
+          <a href="/cities/{{ .Id }}">Show</a>
+          <a href="/cities/{{ .Id }}/edit">Edit</a>
+          <a href="/api/cities/{{ .Id }}" data-method="DELETE" data-remove="country-{{ .Id }}">Delete</a>
         </td>
       </tr>
       {{ end }}
