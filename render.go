@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -30,10 +31,16 @@ func renderHTML(w http.ResponseWriter, data interface{}, tmplPathName string) {
 		return
 	}
 
-	err = t.Execute(w, data)
+	// Avoid partial rendering
+	b := &bytes.Buffer{}
+	err = t.Execute(b, data)
 	if err != nil {
 		log.Println(err)
 		httpGenericErr(w)
 		return
+	}
+	_, err = b.WriteTo(w)
+	if err != nil {
+		log.Fatalf("renderHTML: %s\n", err)
 	}
 }

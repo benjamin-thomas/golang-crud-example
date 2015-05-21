@@ -1,41 +1,46 @@
 {{ define "content" }}
 
 <h1>
-  Listing Cities for {{ .Name }}
+  Listing Cities for {{ .Country.Name }}
 </h1>
 
-<div class="responsive-table">
-  <div class="scrollable-area">
-    <table class="table table-bordered table-striped">
+{{ if len .Country.Cities | eq 0 }}
+  <p>No cities data yet.</p>
+{{ else }}
+  <div class="responsive-table">
+    <div class="scrollable-area">
+      <table class="table table-bordered table-striped">
 
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Name</th>
-          <th></th>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody>
+        {{ range .Country.Cities }}
+        <tr id="city-{{ .Id }}">
+          <td>{{ .Id }}</td>
+          <td>{{ .Name }}</td>
+          <td>
+            <a href="/cities/{{ .Id }}">Show</a>
+            <a href="/cities/{{ .Id }}/edit">Edit</a>
+            <a href="/api/cities/{{ .Id }}" data-method="DELETE" data-remove="cities-{{ .Id }}">Delete</a>
+          </td>
         </tr>
-      </thead>
+        {{ end }}
+        </tbody>
+      </table>
 
-      <tbody>
-      {{ range .Cities }}
-      <tr id="city-{{ .Id }}">
-        <td>{{ .Id }}</td>
-        <td>{{ .Name }}</td>
-        <td>
-          <a href="/cities/{{ .Id }}">Show</a>
-          <a href="/cities/{{ .Id }}/edit">Edit</a>
-          <a href="/api/cities/{{ .Id }}" data-method="DELETE" data-remove="country-{{ .Id }}">Delete</a>
-        </td>
-      </tr>
-      {{ end }}
-      </tbody>
-    </table>
-
-    {{ template "pagination" .Pagination }}
+      {{ template "pagination" .Pagination }}
+    </div>
   </div>
-</div>
 
-<p>
-<a href="{{ .Path }}/new">Create</a>
-</p>
+  {{ end }}
+
+  <p>
+  <a href="{{ .Path }}/new">Create</a>
+  </p>
 {{ end }}

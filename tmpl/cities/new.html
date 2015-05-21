@@ -1,0 +1,19 @@
+{{ define "content" }}
+
+<h1>New City for {{ .Country.Name }}</h1>
+
+<form action="/cities" method="POST" data-redirect="/countries/{{ .Country.Id }}/cities">
+
+  <input type="hidden" id="countryId" name="countryId" value="{{ .Country.Id }}"></input>
+
+  <label for="name">Name</label>
+  <input type="text" id="name" name="name" automplete="off" autofocus></input>
+
+  <input class="btn btn-primary" type="submit"></input>
+</form>
+
+<p>
+<a href="{{ .CancelPath }}">Cancel</a>
+</p>
+
+{{ end }}

@@ -2,7 +2,7 @@ SELECT 'db/migrations/up/06.sql' AS filepath;
 
 CREATE TABLE country_stats (
   id SERIAL PRIMARY KEY,
-  country_id INT NOT NULL REFERENCES countries(id),
+  country_id INT NOT NULL REFERENCES countries(id) ON DELETE CASCADE,
 
   population_count INT NOT NULL,
 

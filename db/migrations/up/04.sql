@@ -2,7 +2,7 @@ SELECT 'db/migrations/up/4.sql' AS filepath;
 
 CREATE TABLE zip_codes (
   id SERIAL PRIMARY KEY,
-  city_id INT NOT NULL REFERENCES cities(id),
+  city_id INT NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
 
   code VARCHAR(50),
 

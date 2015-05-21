@@ -402,7 +402,7 @@ ALTER TABLE ONLY addresses
 --
 
 ALTER TABLE ONLY cities
-    ADD CONSTRAINT cities_country_id_fkey FOREIGN KEY (country_id) REFERENCES countries(id);
+    ADD CONSTRAINT cities_country_id_fkey FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE CASCADE;
 
 
 --
@@ -410,7 +410,7 @@ ALTER TABLE ONLY cities
 --
 
 ALTER TABLE ONLY country_stats
-    ADD CONSTRAINT country_stats_country_id_fkey FOREIGN KEY (country_id) REFERENCES countries(id);
+    ADD CONSTRAINT country_stats_country_id_fkey FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE CASCADE;
 
 
 --
@@ -418,7 +418,7 @@ ALTER TABLE ONLY country_stats
 --
 
 ALTER TABLE ONLY zip_codes
-    ADD CONSTRAINT zip_codes_city_id_fkey FOREIGN KEY (city_id) REFERENCES cities(id);
+    ADD CONSTRAINT zip_codes_city_id_fkey FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE CASCADE;
 
 
 --

@@ -2,7 +2,7 @@ SELECT 'db/migrations/up/3.sql' AS filepath;
 
 CREATE TABLE cities (
   id SERIAL PRIMARY KEY,
-  country_id INT NOT NULL REFERENCES countries(id),
+  country_id INT NOT NULL REFERENCES countries(id) ON DELETE CASCADE,
 
   name VARCHAR(100) NOT NULL,
 

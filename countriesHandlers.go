@@ -20,21 +20,6 @@ func showCountry(w http.ResponseWriter, r *http.Request, id int) {
 	}
 }
 
-func indexCountryCities(w http.ResponseWriter, r *http.Request, id int) {
-	c := &country{Id: id}
-	err := c.indexCities()
-	if err != nil {
-		log.Println(err)
-		httpGenericErr(w)
-		return
-	}
-	if isAPIPath(r.URL.Path) {
-		renderJSON(w, c)
-	} else {
-		renderHTML(w, c, "countries/indexCities")
-	}
-}
-
 func showCountryStats(w http.ResponseWriter, r *http.Request, id int) {
 	c := &country{Id: id}
 	err := c.stats()
@@ -138,5 +123,49 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 		renderJSON(w, tmplData.Countries)
 	} else {
 		renderHTML(w, tmplData, "countries/index")
+	}
+}
+
+func indexCountryCities(w http.ResponseWriter, r *http.Request, id int) {
+	values := r.URL.Query()
+	page := values.Get("page")
+	per := values.Get("per")
+
+	var tmplData struct {
+		Path       string
+		Pagination pagination
+		Country    *country
+	}
+	tmplData.Path = r.URL.Path
+
+	c := &country{Id: id}
+
+	count, err := c.CitiesCount()
+	if err != nil {
+		log.Println(err)
+		httpGenericErr(w)
+		return
+	}
+
+	p, err := newPagination(per, page, count)
+	if err != nil {
+		log.Println(err)
+		httpGenericErr(w)
+		return
+	}
+	tmplData.Pagination = p
+
+	err = c.indexCities(p.Per, p.Page)
+	if err != nil {
+		log.Println(err)
+		httpGenericErr(w)
+		return
+	}
+	tmplData.Country = c
+
+	if isAPIPath(r.URL.Path) {
+		renderJSON(w, tmplData)
+	} else {
+		renderHTML(w, tmplData, "countries/indexCities")
 	}
 }

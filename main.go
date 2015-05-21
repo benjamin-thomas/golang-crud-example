@@ -269,7 +269,12 @@ func main() {
 
 	r.HandleFunc("/countries/{id}/contracts/new", newCountry).Methods("GET")
 	r.HandleFunc("/countries/{id}/stats", intKeyProvider("id", showCountryStats)).Methods("GET")
+
 	r.HandleFunc("/countries/{id}/cities", intKeyProvider("id", indexCountryCities)).Methods("GET")
+
+	r.HandleFunc("/countries/{country_id}/cities/new", intKeyProvider("country_id", newCity)).Methods("GET")
+	r.HandleFunc("/cities/{id}", intKeyProvider("id", showCity)).Methods("GET")
+	r.HandleFunc("/cities", createCity).Methods("POST")
 
 	http.Handle("/", r.mux)
 	log.Fatal(http.ListenAndServe(":8080", nil))
