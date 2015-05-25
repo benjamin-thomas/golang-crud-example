@@ -1,7 +1,18 @@
 {{ define "content" }}
 
   <h1>
-    City: {{ .Name }}
+    City: {{ .Name }} of country: <a href="/countries/{{.Country.Id}}">{{ .Country.Name }}</a>
   </h1>
+
+  <ul class="list-inline">
+    <li>
+    <a href="/cities/{{.Id}}/edit">Edit</a>
+    <li>
+    <a href="/countries/{{.Country.Id}}/cities">List</a>
+    <li>
+    <a href="/api/cities/{{.Id}}" data-method="DELETE" data-redirect="/countries/{{.Country.Id}}/cities">Delete</a>
+    <li>
+    </li>
+  </ul>
 
 {{ end }}

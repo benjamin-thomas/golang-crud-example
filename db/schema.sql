@@ -56,7 +56,8 @@ CREATE TABLE addresses (
     city_id integer NOT NULL,
     name character varying(100) NOT NULL,
     created_on timestamp without time zone DEFAULT now() NOT NULL,
-    updated_on timestamp without time zone DEFAULT now() NOT NULL
+    updated_on timestamp without time zone DEFAULT now() NOT NULL,
+    CONSTRAINT addresses_name_check CHECK ((btrim((name)::text) <> ''::text))
 );
 
 
@@ -92,7 +93,8 @@ CREATE TABLE cities (
     country_id integer NOT NULL,
     name character varying(100) NOT NULL,
     created_on timestamp without time zone DEFAULT now() NOT NULL,
-    updated_on timestamp without time zone DEFAULT now() NOT NULL
+    updated_on timestamp without time zone DEFAULT now() NOT NULL,
+    CONSTRAINT cities_name_check CHECK ((btrim((name)::text) <> ''::text))
 );
 
 

@@ -1,0 +1,14 @@
+{{ define "content" }}
+
+<h1>Edit City</h1>
+
+<form action="/cities/{{ .Id }}" data-method="PUT" data-redirect="/countries/{{.Country.Id}}/cities">
+
+  <label for="name">Name</label>
+  <input type="text" id="name" name="name" value="{{ .Name }}" autocomplete="off" autofocus></input>
+
+  <input type="submit"></input>
+
+</form>
+
+{{ end }}

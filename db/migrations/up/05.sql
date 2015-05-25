@@ -4,7 +4,7 @@ CREATE TABLE addresses (
   id SERIAL PRIMARY KEY,
   city_id INT NOT NULL REFERENCES cities(id),
 
-  name VARCHAR(100) NOT NULL,
+  name VARCHAR(100) NOT NULL CHECK (trim(name) != ''),
 
   created_on TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
   updated_on TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
