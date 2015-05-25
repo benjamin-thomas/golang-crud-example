@@ -56,11 +56,11 @@
 
             ajaxLink(this.href, 'DELETE')
                 .done(function(data) {
-                    var remove = that.dataset.remove,
+                    var removeId = that.dataset.removeId,
                         redirect = that.dataset.redirect;
 
-                    if (remove) {
-                        $('#' + remove).remove();
+                    if (removeId) {
+                        $('#' + removeId).remove();
                     } else if (redirect) {
                         window.location = redirect;
                     }
