@@ -255,6 +255,11 @@ func main() {
 	// http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("public/assets"))))
 	http.Handle("/assets/", middlewares(http.FileServer(http.Dir("public"))))
 	// http.Handle("/assets/", http.StripPrefix("public/assets", http.FileServer(http.Dir("public/assets"))))
+
+	if os.Getenv("DEV") == "1" {
+		http.Handle("/assets_dev/", http.StripPrefix("/assets_dev/", http.FileServer(http.Dir("assets"))))
+	}
+
 	r.HandleFunc("/", rootHandler).Methods("GET")
 	r.HandleFunc("/countries/new", newCountry).Methods("GET")
 	r.HandleFunc("/countries/{id}/edit", intKeyProvider("id", editCountry)).Methods("GET")
@@ -266,6 +271,8 @@ func main() {
 	r.HandleFunc("/countries", createCountry).Methods("POST")
 	r.HandleFunc("/countries/{id}", intKeyProvider("id", updateCountry)).Methods("PUT", "PATCH")
 	r.HandleFunc("/api/countries/{id}", intKeyProvider("id", deleteCountry)).Methods("DELETE")
+
+	r.HandleFunc("/datatables/countries", datatableCountries).Methods("GET")
 
 	r.HandleFunc("/countries/{id}/contracts/new", newCountry).Methods("GET")
 	r.HandleFunc("/countries/{id}/stats", intKeyProvider("id", showCountryStats)).Methods("GET")
@@ -279,6 +286,6 @@ func main() {
 	r.HandleFunc("/cities", createCity).Methods("POST")
 	r.HandleFunc("/api/cities/{id}", intKeyProvider("id", deleteCity)).Methods("DELETE")
 
-	http.Handle("/", r.mux)
+	http.Handle("/", redirectOnTrailingSlash(r.mux))
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

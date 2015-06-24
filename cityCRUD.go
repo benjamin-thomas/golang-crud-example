@@ -1,9 +1,15 @@
 package main
 
+type zipCode struct {
+	Id   int `json: "id"`
+	Code string
+}
+
 type city struct {
-	Id int `json:"id"`
+	Id int `json: "id"`
 
 	Country country
+	ZipCode zipCode
 	Name    string `json:"name"`
 }
 
@@ -17,12 +23,17 @@ func (c *city) read() error {
 	SELECT c.name
 	     , co.id
 	     , co.name
+			 , z.id
+			 , z.code
 	  FROM cities c
 	  LEFT
 	  JOIN countries co
 	    ON co.id = c.country_id
+		LEFT
+		JOIN zip_codes z
+		  ON z.city_id = c.id
 	 WHERE c.id    = $1
-	`, &c.Id).Scan(&c.Name, &c.Country.Id, &c.Country.Name)
+	`, &c.Id).Scan(&c.Name, &c.Country.Id, &c.Country.Name, &c.ZipCode.Id, &c.ZipCode.Code)
 }
 
 func (c *city) update() error {

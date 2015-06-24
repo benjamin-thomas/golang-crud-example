@@ -1,0 +1,20 @@
+{
+  "name": "crud-example",
+  "version": "0.0.0",
+  "authors": [
+    "Benjamin Thomas <benjamin.guy.thomas@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "datatables": "~1.10.7",
+    "bootstrap": "~3.3.4",
+    "jquery-autosize": "~3.0.6"
+  }
+}

@@ -1,19 +1,14 @@
 package main
 
-type countries struct {
-}
+type countries []country
 
-func (c countries) Name() string {
-	return "Countries"
-}
-
-func (c countries) Count() (int, error) {
+func (cs countries) Count() (int, error) {
 	var count int
 	err := db.QueryRow("SELECT COUNT(*) FROM countries").Scan(&count)
 	return count, err
 }
 
-func (c *countries) Index(per, page int) ([]country, error) {
+func (cs *countries) Index(per, page int) error {
 	offset := per * (page - 1)
 	rows, err := db.Query(`
 										SELECT c.id
@@ -27,21 +22,56 @@ func (c *countries) Index(per, page int) ([]country, error) {
 												 `, &per, &offset)
 	defer rows.Close()
 
-	var cs []country
+	for rows.Next() {
+		c := country{}
+		err = rows.Scan(&c.Id, &c.Name, &c.HasStats)
+		if err != nil {
+			return err
+		}
+		*cs = append(*cs, c)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (cs *countries) searchByName(name string, per, page int) error {
+	// name = "%" + name + "%"
+	offset := per * (page - 1)
+	rows, err := db.Query(`
+	SELECT c.id
+			 , c.name
+			 , (cs.id IS NOT NULL) AS has_stats
+		FROM countries AS c
+		LEFT
+		JOIN country_stats AS cs
+			ON cs.country_id = c.id
+		WHERE c.name ILIKE $1 LIMIT $2 OFFSET $3
+	`, &name, &per, &offset)
+	defer rows.Close()
 
 	for rows.Next() {
 		c := country{}
 		err = rows.Scan(&c.Id, &c.Name, &c.HasStats)
 		if err != nil {
-			return cs, err
+			return err
 		}
-		cs = append(cs, c)
+		*cs = append(*cs, c)
 	}
-
 	err = rows.Err()
 	if err != nil {
-		return cs, err
+		return err
 	}
 
-	return cs, nil
+	return nil
+}
+
+func (cs *countries) countByName(name string) (int, error) {
+	var count int
+	var err = db.QueryRow("SELECT COUNT(*) FROM countries WHERE name ILIKE $1", &name).Scan(&count)
+	return count, err
 }

@@ -3,6 +3,9 @@ package main
 import (
 	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/k0kubun/pp"
 )
 
 func showCountry(w http.ResponseWriter, r *http.Request, id int) {
@@ -89,14 +92,15 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 	page := values.Get("page")
 	per := values.Get("per")
 
+	cs := countries{}
+
 	var tmplData struct {
 		Path       string
 		Pagination pagination
-		Countries  []country
+		Countries  countries
 	}
 	tmplData.Path = r.URL.Path
 
-	cs := countries{}
 	count, err := cs.Count()
 	if err != nil {
 		log.Println(err)
@@ -112,18 +116,105 @@ func indexCountries(w http.ResponseWriter, r *http.Request) {
 	}
 	tmplData.Pagination = p
 
-	tmplData.Countries, err = cs.Index(p.Per, p.Page)
+	err = cs.Index(p.Per, p.Page)
 	if err != nil {
 		log.Println(err)
 		httpGenericErr(w)
 		return
 	}
+	tmplData.Countries = cs
 
 	if isAPIPath(r.URL.Path) {
 		renderJSON(w, tmplData.Countries)
 	} else {
 		renderHTML(w, tmplData, "countries/index")
 	}
+}
+
+func asArray(cs countries) [][]interface{} {
+	rows := [][]interface{}{}
+	for _, c := range cs {
+		rows = append(rows, []interface{}{c.Id, c.Name, c.HasStats, "todo"})
+	}
+	return rows
+}
+
+func datatableCountries(w http.ResponseWriter, r *http.Request) {
+	values := r.URL.Query()
+	start := values.Get("start")
+	length := values.Get("length")
+
+	iStart, err := strconv.Atoi(start)
+	if err != nil {
+		log.Println(err)
+		httpGenericErr(w)
+	}
+
+	per, err := strconv.Atoi(length)
+	if err != nil {
+		log.Println(err)
+		httpGenericErr(w)
+	}
+	page := (iStart / per) + 1 // start=0 => page=1; start=10 => page=2; etc.
+
+	draw := values.Get("draw")
+	pp.Println("draw =", draw)
+	println("page =", page)
+	println("per =", per)
+	// pp.Println("values =", values)
+	q := values.Get("search[value]")
+	q = "%" + q + "%"
+	pp.Println("q =", q)
+	var tmplData struct {
+		Draw            int             `json:"draw"`
+		RecordsTotal    int             `json:"recordsTotal"`
+		RecordsFiltered int             `json:"recordsFiltered"`
+		Data            [][]interface{} `json:"data"`
+	}
+
+	iDraw, err := strconv.Atoi(draw)
+	if err != nil {
+		log.Println(err)
+		httpGenericErr(w)
+		return
+	}
+	tmplData.Draw = iDraw
+
+	cs := countries{}
+	count, err := cs.Count()
+	if err != nil {
+		log.Println(err)
+		httpGenericErr(w)
+		return
+	}
+
+	p, err := newPagination(strconv.Itoa(per), strconv.Itoa(page), count)
+	if err != nil {
+		log.Println(err)
+		httpGenericErr(w)
+		return
+	}
+	tmplData.RecordsTotal = p.Count
+
+	err = cs.searchByName(q, per, page)
+	if err != nil {
+		log.Println(err)
+		httpGenericErr(w)
+		return
+	}
+
+	cnt, err := cs.countByName(q)
+	if err != nil {
+		log.Println(err)
+		httpGenericErr(w)
+		return
+	}
+
+	tmplData.Data = asArray(cs)
+	tmplData.RecordsFiltered = cnt
+	pp.Println("tmplData =", tmplData)
+
+	renderJSON(w, tmplData)
 }
 
 func indexCountryCities(w http.ResponseWriter, r *http.Request, id int) {

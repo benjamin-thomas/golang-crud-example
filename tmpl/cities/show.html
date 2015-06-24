@@ -4,6 +4,10 @@
     City: {{ .Name }} of country: <a href="/countries/{{.Country.Id}}">{{ .Country.Name }}</a>
   </h1>
 
+  <p>
+  ZipCode: {{ .ZipCode.Code }}
+  </p>
+
   <ul class="list-inline">
     <li>
     <a href="/cities/{{.Id}}/edit">Edit</a>
