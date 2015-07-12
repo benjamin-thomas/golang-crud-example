@@ -30,6 +30,16 @@
       </tr>
       {{ end }}
       </tbody>
+
+      <tfoot>
+        <tr>
+          <th>ID</th>
+          <th><input placeholder="Search Name"></th>
+          <th>Has stats</th>
+          <th>Link</th>
+        </tr>
+      </tfoot>
+
     </table>
 
     {{ template "pagination" .Pagination }}

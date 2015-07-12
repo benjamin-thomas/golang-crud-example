@@ -40,6 +40,22 @@
 
     function initDataTables() {
         $('.datatable').each(function(i, table) {
+
+            var tfoots = table.getElementsByTagName('tfoot');
+            if (tfoots.length > 0) {
+                var tfoot = tfoots[0];
+                var ths = tfoot.getElementsByTagName('th');
+                var tlength = ths.length;
+                for (var ii = 0; ii < tlength; ii++ ) {
+                    console.log("ii", ths[ii]);
+                    var th = ths[ii];
+                    var inputs = th.getElementsByTagName('input');
+                    if (inputs.length > 0) {
+                        inputs[0].placeholder = inputs[0].placeholder + '__search';
+                    }
+                }
+            }
+
             $(table).dataTable({
                 serverSide: true,
                 ajax: table.dataset.ajax,
@@ -54,6 +70,13 @@
                     search.focus();
                 }
             });
+
+            var dt = $(table).DataTable(); // DataTable(), not dataTable()!
+            dt.columns().every(function() {
+                var that = this;
+                console.log("that =", that);
+            });
+
         });
     }
 
