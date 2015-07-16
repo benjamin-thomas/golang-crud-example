@@ -74,7 +74,9 @@
             var dt = $(table).DataTable(); // DataTable(), not dataTable()!
             dt.columns().every(function() {
                 var that = this;
-                console.log("that =", that);
+                $('input', this.footer()).on('keyup change', function () {
+                    that.search(this.value).draw();
+                } );
             });
 
         });

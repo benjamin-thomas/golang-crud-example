@@ -141,6 +141,7 @@ func asArray(cs countries) [][]interface{} {
 
 func datatableCountries(w http.ResponseWriter, r *http.Request) {
 	values := r.URL.Query()
+	pp.Println(values)
 	start := values.Get("start")
 	length := values.Get("length")
 
@@ -161,8 +162,11 @@ func datatableCountries(w http.ResponseWriter, r *http.Request) {
 	pp.Println("draw =", draw)
 	println("page =", page)
 	println("per =", per)
-	// pp.Println("values =", values)
 	q := values.Get("search[value]")
+	if q == "" {
+		// Try column search
+		q = values.Get("columns[1][search][value]")
+	}
 	q = "%" + q + "%"
 	pp.Println("q =", q)
 	var tmplData struct {
