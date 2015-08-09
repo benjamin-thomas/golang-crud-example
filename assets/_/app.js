@@ -41,10 +41,10 @@
     function initDataTables() {
         $('.datatable').each(function(i, table) {
 
-            var tfoots = table.getElementsByTagName('tfoot');
-            if (tfoots.length > 0) {
-                var tfoot = tfoots[0];
-                var ths = tfoot.getElementsByTagName('th');
+            var theaders = table.getElementsByTagName('thead');
+            if (theaders.length > 0) {
+                var theader = theaders[0];
+                var ths = theader.getElementsByTagName('th');
                 var tlength = ths.length;
                 for (var ii = 0; ii < tlength; ii++ ) {
                     console.log("ii", ths[ii]);
@@ -74,7 +74,7 @@
             var dt = $(table).DataTable(); // DataTable(), not dataTable()!
             dt.columns().every(function() {
                 var that = this;
-                $('input', this.footer()).on('keyup change', function () {
+                $('input', this.header()).on('keyup change', function () {
                     that.search(this.value).draw();
                 } );
             });
