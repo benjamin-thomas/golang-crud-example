@@ -51,7 +51,7 @@
                     var th = ths[ii];
                     var inputs = th.getElementsByTagName('input');
                     if (inputs.length > 0) {
-                        inputs[0].placeholder = inputs[0].placeholder + '__search';
+                        inputs[0].placeholder = inputs[0].placeholder + 'Search';
                     }
                 }
             }

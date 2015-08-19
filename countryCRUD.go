@@ -7,9 +7,8 @@ import (
 type country struct {
 	Id              int           `json:"id"`
 	Name            string        `json:"name"`
-	HasStats        bool          `json:hasStats`
-	PopulationCount sql.NullInt64 `json:populationCount`
-	Cities          []city        `json:cities`
+	PopulationCount sql.NullInt64 `json:"population_count"`
+	Cities          []city        `json:"cities"`
 }
 
 func (c *country) create() error {
@@ -20,13 +19,12 @@ func (c *country) create() error {
 func (c *country) read() error {
 	return db.QueryRow(`
 		SELECT c.name
-		     , (cs.id IS NOT NULL) AS has_stats
 		  FROM countries AS c
 		  LEFT
 		  JOIN country_stats AS cs
 		    ON cs.country_id = c.id
 		 WHERE c.id          = $1
-	`, &c.Id).Scan(&c.Name, &c.HasStats)
+	`, &c.Id).Scan(&c.Name)
 }
 
 func (c *country) update() error {

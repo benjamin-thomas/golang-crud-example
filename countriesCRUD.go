@@ -13,7 +13,6 @@ func (cs *countries) Index(per, page int) error {
 	rows, err := db.Query(`
 										SELECT c.id
 												 , c.name
-												 , (cs.id IS NOT NULL) AS has_stats
 											FROM countries AS c
 											LEFT
 											JOIN country_stats AS cs
@@ -24,7 +23,7 @@ func (cs *countries) Index(per, page int) error {
 
 	for rows.Next() {
 		c := country{}
-		err = rows.Scan(&c.Id, &c.Name, &c.HasStats)
+		err = rows.Scan(&c.Id, &c.Name)
 		if err != nil {
 			return err
 		}
@@ -45,7 +44,6 @@ func (cs *countries) searchByName(name string, per, page int) error {
 	rows, err := db.Query(`
 	SELECT c.id
 			 , c.name
-			 , (cs.id IS NOT NULL) AS has_stats
 		FROM countries AS c
 		LEFT
 		JOIN country_stats AS cs
@@ -56,7 +54,7 @@ func (cs *countries) searchByName(name string, per, page int) error {
 
 	for rows.Next() {
 		c := country{}
-		err = rows.Scan(&c.Id, &c.Name, &c.HasStats)
+		err = rows.Scan(&c.Id, &c.Name)
 		if err != nil {
 			return err
 		}

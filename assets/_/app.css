@@ -27,3 +27,7 @@
   background: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.9) 25%, rgba(255, 255, 255, 0.9) 75%, rgba(255, 255, 255, 0) 100%);
   /* W3C */
 }
+
+input.search {
+  margin-left: 0.5em;
+}

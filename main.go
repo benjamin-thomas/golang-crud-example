@@ -1,17 +1,13 @@
 package main
 
 import (
-	"bytes"
 	"database/sql"
-	"encoding/base64"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/k0kubun/pp"
 	_ "github.com/lib/pq"
@@ -117,70 +113,12 @@ func timerMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func BasicAuth(user, pass []byte, h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		const basicAuthPrefix string = "Basic "
-
-		// Get the Basic Authentication credentials
-		auth := r.Header.Get("Authorization")
-		if strings.HasPrefix(auth, basicAuthPrefix) {
-			// Check credentials
-			payload, err := base64.StdEncoding.DecodeString(auth[len(basicAuthPrefix):])
-			if err == nil {
-				pair := bytes.SplitN(payload, []byte(":"), 2)
-				if len(pair) == 2 &&
-					bytes.Equal(pair[0], user) &&
-					bytes.Equal(pair[1], pass) {
-
-					// Delegate request to the given handle
-					h.ServeHTTP(w, r)
-					return
-				}
-			}
-		}
-
-		// Request Basic Authentication otherwise
-		w.Header().Set("WWW-Authenticate", "Basic realm=Restricted")
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-	})
-}
-
 func mustGetenv(env string) string {
 	s := os.Getenv(env)
 	if s == "" {
 		panic(fmt.Sprintf("%s env var not set", env))
 	}
 	return s
-}
-
-func middlewares(final http.Handler) http.Handler {
-	chain := func(h http.Handler) http.Handler {
-		return h
-	}
-
-	user := []byte(mustGetenv("CRUD_USER"))
-	pw := []byte(mustGetenv("CRUD_PW"))
-	authenticate := func(h http.Handler) http.Handler {
-		return BasicAuth(user, pw, h)
-	}
-
-	dev := true
-	logger := func(h http.Handler) http.Handler {
-		if dev {
-			// gin logger
-			return appLogger(os.Stdout, h)
-		} else {
-			return handlers.LoggingHandler(os.Stdout, h)
-		}
-	}
-
-	return chain(
-		timerMiddleware(
-			authenticate(
-				logger(final),
-			),
-		),
-	)
 }
 
 func stringKeyProvider(key string, fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
@@ -261,30 +199,22 @@ func main() {
 	}
 
 	r.HandleFunc("/", rootHandler).Methods("GET")
-	r.HandleFunc("/countries/new", newCountry).Methods("GET")
-	r.HandleFunc("/countries/{id}/edit", intKeyProvider("id", editCountry)).Methods("GET")
 
-	r.HandleFunc("/api/countries", indexCountries).Methods("GET")
 	r.HandleFunc("/countries", indexCountries).Methods("GET")
 	r.HandleFunc("/countries/{id}", intKeyProvider("id", showCountry)).Methods("GET")
-	r.HandleFunc("/api/countries/{id}", intKeyProvider("id", showCountry)).Methods("GET")
 	r.HandleFunc("/countries", createCountry).Methods("POST")
 	r.HandleFunc("/countries/{id}", intKeyProvider("id", updateCountry)).Methods("PUT", "PATCH")
-	r.HandleFunc("/api/countries/{id}", intKeyProvider("id", deleteCountry)).Methods("DELETE")
 
-	r.HandleFunc("/datatables/countries", datatableCountries).Methods("GET")
+	// r.HandleFunc("/countries/{id}/contracts/new", newCountry).Methods("GET")
+	// r.HandleFunc("/countries/{id}/stats", intKeyProvider("id", showCountryStats)).Methods("GET")
 
-	r.HandleFunc("/countries/{id}/contracts/new", newCountry).Methods("GET")
-	r.HandleFunc("/countries/{id}/stats", intKeyProvider("id", showCountryStats)).Methods("GET")
+	// r.HandleFunc("/countries/{id}/cities", intKeyProvider("id", indexCountryCities)).Methods("GET")
 
-	r.HandleFunc("/countries/{id}/cities", intKeyProvider("id", indexCountryCities)).Methods("GET")
-
-	r.HandleFunc("/countries/{country_id}/cities/new", intKeyProvider("country_id", newCity)).Methods("GET")
-	r.HandleFunc("/cities/{id}/edit", intKeyProvider("id", editCity)).Methods("GET")
-	r.HandleFunc("/cities/{id}", intKeyProvider("id", showCity)).Methods("GET")
-	r.HandleFunc("/cities/{id}", intKeyProvider("id", updateCity)).Methods("PUT", "PATCH")
-	r.HandleFunc("/cities", createCity).Methods("POST")
-	r.HandleFunc("/api/cities/{id}", intKeyProvider("id", deleteCity)).Methods("DELETE")
+	// r.HandleFunc("/countries/{country_id}/cities/new", intKeyProvider("country_id", newCity)).Methods("GET")
+	// r.HandleFunc("/cities/{id}/edit", intKeyProvider("id", editCity)).Methods("GET")
+	// r.HandleFunc("/cities/{id}", intKeyProvider("id", showCity)).Methods("GET")
+	// r.HandleFunc("/cities/{id}", intKeyProvider("id", updateCity)).Methods("PUT", "PATCH")
+	// r.HandleFunc("/cities", createCity).Methods("POST")
 
 	http.Handle("/", redirectOnTrailingSlash(r.mux))
 	log.Fatal(http.ListenAndServe(":8080", nil))

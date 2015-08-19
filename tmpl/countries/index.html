@@ -10,30 +10,14 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Name<input></th>
+          <th>Name<input class=search></th>
           <th>Has stats</th>
           <th>Link</th>
         </tr>
       </thead>
 
-      <tbody>
-      {{ range .Countries }}
-      <tr id="country-{{ .Id }}">
-        <td>{{ .Id }}</td>
-        <td>{{ .Name }}</td>
-        <td>{{ .HasStats }}</td>
-        <td>
-          <a href="/countries/{{ .Id }}">Show</a>
-          <a href="/countries/{{ .Id }}/edit">Edit</a>
-          <a href="/api/countries/{{ .Id }}" data-method="DELETE" data-remove-id="country-{{ .Id }}">Delete</a>
-        </td>
-      </tr>
-      {{ end }}
-      </tbody>
-
     </table>
 
-    {{ template "pagination" .Pagination }}
   </div>
 </div>
 
