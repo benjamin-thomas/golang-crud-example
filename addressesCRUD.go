@@ -22,7 +22,7 @@ func (as *addresses) index(sPer, sPage string) error {
 				 , a.line2
 				 , a.line3
 				 , c.name AS city
-				 , z.code AS zip_code
+				 , c.zip_code
 				 , cn.name AS country
 			FROM addresses AS a
 		 INNER
@@ -32,8 +32,6 @@ func (as *addresses) index(sPer, sPage string) error {
 			JOIN countries AS cn
 				ON cn.id = c.country_id
 
-				LEFT JOIN zip_codes AS z
-				ON z.city_id = c.id
 		 ORDER BY id LIMIT $1 OFFSET $2
 	`, &per, &offset)
 	if err != nil {

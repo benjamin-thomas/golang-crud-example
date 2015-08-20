@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+./bin/psql --echo-all --dbname postgres --command="CREATE DATABASE $PGDATABASE;"
+
+find ./db/migrations/up/ -type f -name "*.sql" | sort -n | xargs cat | ./bin/psql-pipe
+
+./bin/psql-pipe < ./db/seed.sql
+
+./bin/pg_dump -s $PGDATABASE >./db/schema.sql

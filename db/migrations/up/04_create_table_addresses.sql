@@ -1,4 +1,4 @@
-SELECT 'db/migrations/up/05_create_table_addresses.sql' AS filepath;
+SELECT 'db/migrations/up/04_create_table_addresses.sql' AS filepath;
 
 CREATE TABLE addresses (
   id SERIAL PRIMARY KEY,
@@ -22,4 +22,4 @@ CREATE TRIGGER addresses_touch_trg
   FOR EACH ROW
     EXECUTE PROCEDURE touch();
 
-INSERT INTO migrations VALUES (5);
+INSERT INTO migrations VALUES (4);

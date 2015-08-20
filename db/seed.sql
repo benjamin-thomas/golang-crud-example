@@ -207,37 +207,35 @@ BEGIN
   SELECT id FROM countries WHERE name = 'France' LIMIT 1 INTO france_id;
   SELECT id FROM countries WHERE name = 'United Kingdom' LIMIT 1 INTO uk_id;
 
-INSERT INTO cities (country_id, name) VALUES
-  (france_id, 'Paris'),
-  (france_id, 'Nice'),
-  (france_id, 'Marseille'),
-  (france_id, 'Venelles'),
-  (france_id, 'Aix-en-Provence'),
-  (uk_id, 'London'),
-  (uk_id, 'Oxford'),
-  (uk_id, 'Brighton');
-
-INSERT INTO country_stats (country_id, population_count) VALUES
-  (france_id, 66808074),
-  (uk_id, 64812393);
+INSERT INTO cities (country_id, name, zip_code) VALUES
+  (france_id, 'Paris', '75017'),
+  (france_id, 'Nice', NULL),
+  (france_id, 'Marseille', '13000'),
+  (france_id, 'Marseille', '13001'),
+  (france_id, 'Venelles', NULL),
+  (france_id, 'Aix-en-Provence', NULL),
+  (uk_id, 'London', 'W1D 1LA'),
+  (uk_id, 'Oxford', NULL),
+  (uk_id, 'Brighton', NULL);
 
 END $$;
 
 DO $$
   DECLARE paris_id INT;
   DECLARE london_id INT;
+  DECLARE marseille_0_id INT;
+  DECLARE marseille_1_id INT;
 BEGIN
   SELECT id FROM cities WHERE name = 'Paris' LIMIT 1 INTO paris_id;
   SELECT id FROM cities WHERE name = 'London' LIMIT 1 INTO london_id;
-
-INSERT INTO zip_codes (city_id, code) VALUES
-  (paris_id, '75017'),
-  (paris_id, '75020'),
-  (london_id, 'W1D 1LA');
+  SELECT id FROM cities WHERE name = 'Marseille' AND zip_code = '13000' LIMIT 1 INTO marseille_0_id;
+  SELECT id FROM cities WHERE name = 'Marseille' AND zip_code = '13001' LIMIT 1 INTO marseille_1_id;
 
 INSERT INTO addresses (city_id, name) VALUES
   (paris_id, 'Paris addr 1'),
   (paris_id, 'Paris addr 2'),
   (london_id, 'London addr 1'),
-  (london_id, 'London addr 2');
+  (london_id, 'London addr 2'),
+  (marseille_0_id, 'Marseille0 addr'),
+  (marseille_1_id, 'Marseille1 addr');
 END $$;

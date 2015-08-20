@@ -95,9 +95,11 @@ CREATE TABLE cities (
     id integer NOT NULL,
     country_id integer NOT NULL,
     name character varying(100) NOT NULL,
+    zip_code character varying(50),
     created_on timestamp without time zone DEFAULT now() NOT NULL,
     updated_on timestamp without time zone DEFAULT now() NOT NULL,
-    CONSTRAINT cities_name_check CHECK ((btrim((name)::text) <> ''::text))
+    CONSTRAINT cities_name_check CHECK ((btrim((name)::text) <> ''::text)),
+    CONSTRAINT cities_name_check1 CHECK ((btrim((name)::text) <> ''::text))
 );
 
 
@@ -160,42 +162,6 @@ ALTER SEQUENCE countries_id_seq OWNED BY countries.id;
 
 
 --
--- Name: country_stats; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE country_stats (
-    id integer NOT NULL,
-    country_id integer NOT NULL,
-    population_count integer NOT NULL,
-    created_on timestamp without time zone DEFAULT now() NOT NULL,
-    updated_on timestamp without time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE country_stats OWNER TO postgres;
-
---
--- Name: country_stats_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE country_stats_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE country_stats_id_seq OWNER TO postgres;
-
---
--- Name: country_stats_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE country_stats_id_seq OWNED BY country_stats.id;
-
-
---
 -- Name: migrations; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -205,42 +171,6 @@ CREATE TABLE migrations (
 
 
 ALTER TABLE migrations OWNER TO postgres;
-
---
--- Name: zip_codes; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE TABLE zip_codes (
-    id integer NOT NULL,
-    city_id integer NOT NULL,
-    code character varying(50),
-    created_on timestamp without time zone DEFAULT now() NOT NULL,
-    updated_on timestamp without time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE zip_codes OWNER TO postgres;
-
---
--- Name: zip_codes_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE zip_codes_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE zip_codes_id_seq OWNER TO postgres;
-
---
--- Name: zip_codes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE zip_codes_id_seq OWNED BY zip_codes.id;
-
 
 --
 -- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
@@ -261,20 +191,6 @@ ALTER TABLE ONLY cities ALTER COLUMN id SET DEFAULT nextval('cities_id_seq'::reg
 --
 
 ALTER TABLE ONLY countries ALTER COLUMN id SET DEFAULT nextval('countries_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY country_stats ALTER COLUMN id SET DEFAULT nextval('country_stats_id_seq'::regclass);
-
-
---
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY zip_codes ALTER COLUMN id SET DEFAULT nextval('zip_codes_id_seq'::regclass);
 
 
 --
@@ -302,22 +218,6 @@ ALTER TABLE ONLY countries
 
 
 --
--- Name: country_stats_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY country_stats
-    ADD CONSTRAINT country_stats_pkey PRIMARY KEY (id);
-
-
---
--- Name: zip_codes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
---
-
-ALTER TABLE ONLY zip_codes
-    ADD CONSTRAINT zip_codes_pkey PRIMARY KEY (id);
-
-
---
 -- Name: addresses_name_uidx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
@@ -325,10 +225,24 @@ CREATE UNIQUE INDEX addresses_name_uidx ON addresses USING btree (name);
 
 
 --
+-- Name: cities_name_and_zip_code_uidx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE UNIQUE INDEX cities_name_and_zip_code_uidx ON cities USING btree (name, zip_code);
+
+
+--
 -- Name: cities_name_uidx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
-CREATE UNIQUE INDEX cities_name_uidx ON cities USING btree (name);
+CREATE INDEX cities_name_uidx ON cities USING btree (name);
+
+
+--
+-- Name: cities_zip_code_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX cities_zip_code_idx ON cities USING btree (zip_code);
 
 
 --
@@ -339,24 +253,10 @@ CREATE UNIQUE INDEX countries_name_uidx ON countries USING btree (name);
 
 
 --
--- Name: country_stats_country_id_uidx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE UNIQUE INDEX country_stats_country_id_uidx ON country_stats USING btree (country_id);
-
-
---
 -- Name: migrations_version_uidx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE UNIQUE INDEX migrations_version_uidx ON migrations USING btree (version);
-
-
---
--- Name: zip_codes_city_id_code_uidx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE UNIQUE INDEX zip_codes_city_id_code_uidx ON zip_codes USING btree (city_id, code);
 
 
 --
@@ -381,20 +281,6 @@ CREATE TRIGGER countries_touch_trg BEFORE UPDATE ON countries FOR EACH ROW EXECU
 
 
 --
--- Name: country_stats_touch_trg; Type: TRIGGER; Schema: public; Owner: postgres
---
-
-CREATE TRIGGER country_stats_touch_trg BEFORE UPDATE ON country_stats FOR EACH ROW EXECUTE PROCEDURE touch();
-
-
---
--- Name: zip_codes_touch_trg; Type: TRIGGER; Schema: public; Owner: postgres
---
-
-CREATE TRIGGER zip_codes_touch_trg BEFORE UPDATE ON zip_codes FOR EACH ROW EXECUTE PROCEDURE touch();
-
-
---
 -- Name: addresses_city_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -408,22 +294,6 @@ ALTER TABLE ONLY addresses
 
 ALTER TABLE ONLY cities
     ADD CONSTRAINT cities_country_id_fkey FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE CASCADE;
-
-
---
--- Name: country_stats_country_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY country_stats
-    ADD CONSTRAINT country_stats_country_id_fkey FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE CASCADE;
-
-
---
--- Name: zip_codes_city_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY zip_codes
-    ADD CONSTRAINT zip_codes_city_id_fkey FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE CASCADE;
 
 
 --

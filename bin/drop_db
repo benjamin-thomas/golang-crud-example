@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./bin/psql --echo-all --dbname postgres --command="DROP DATABASE $PGDATABASE;"
