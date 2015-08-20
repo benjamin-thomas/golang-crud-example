@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -x
+
+export CRUD_USER=dev
+export CRUD_PW=dev
+export DEV=1
+
+while true; do
+  go run *.go
+  sleep 0.1
+done

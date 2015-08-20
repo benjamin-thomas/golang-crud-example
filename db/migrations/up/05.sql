@@ -6,6 +6,10 @@ CREATE TABLE addresses (
 
   name VARCHAR(100) NOT NULL CHECK (trim(name) != ''),
 
+  line1 VARCHAR(100),
+  line2 VARCHAR(100),
+  line3 VARCHAR(100),
+
   created_on TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
   updated_on TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
 );

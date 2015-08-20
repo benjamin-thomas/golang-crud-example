@@ -15,9 +15,7 @@ import (
 
 var (
 	db               *sql.DB
-	defaultLimit     string = "10"
-	defaultPer       string = "10"
-	defaultOffset    string = "0"
+	defaultPer       int = 10
 	stmtGetCountry   *sql.Stmt
 	stmtGetCountries *sql.Stmt
 )
@@ -200,10 +198,12 @@ func main() {
 
 	r.HandleFunc("/", rootHandler).Methods("GET")
 
-	r.HandleFunc("/countries", indexCountries).Methods("GET")
-	r.HandleFunc("/countries/{id}", intKeyProvider("id", showCountry)).Methods("GET")
-	r.HandleFunc("/countries", createCountry).Methods("POST")
-	r.HandleFunc("/countries/{id}", intKeyProvider("id", updateCountry)).Methods("PUT", "PATCH")
+	// r.HandleFunc("/countries", indexCountries).Methods("GET")
+	// r.HandleFunc("/countries/{id}", intKeyProvider("id", showCountry)).Methods("GET")
+	// r.HandleFunc("/countries", createCountry).Methods("POST")
+	// r.HandleFunc("/countries/{id}", intKeyProvider("id", updateCountry)).Methods("PUT", "PATCH")
+
+	r.HandleFunc("/addresses", indexAddresses).Methods("GET")
 
 	// r.HandleFunc("/countries/{id}/contracts/new", newCountry).Methods("GET")
 	// r.HandleFunc("/countries/{id}/stats", intKeyProvider("id", showCountryStats)).Methods("GET")

@@ -93,3 +93,5 @@ find ./db/migrations/up/ -type f -name "*.sql" | sort -n | xargs cat | ./bin/psq
 ./bin/pg_dump -s $PGDATABASE >./db/schema.sql
 ```
 
+### Develop queries
+cat ./queries/addresses.sql | ./bin/psql-pipe

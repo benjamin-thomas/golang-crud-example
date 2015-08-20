@@ -80,79 +80,79 @@ func editCountry(w http.ResponseWriter, r *http.Request, id int) {
 	renderHTML(w, c, "countries/edit")
 }
 
-func indexCountries(w http.ResponseWriter, r *http.Request) {
+// func indexCountries(w http.ResponseWriter, r *http.Request) {
 
-	values := r.URL.Query()
+//   values := r.URL.Query()
 
-	per := values.Get("per")
-	page := values.Get("page")
+//   per := values.Get("per")
+//   page := values.Get("page")
 
-	cs := countries{}
+//   cs := countries{}
 
-	count, err := cs.Count()
-	if err != nil {
-		log.Println(err)
-		httpGenericErr(w)
-		return
-	}
+//   count, err := cs.Count()
+//   if err != nil {
+//     log.Println(err)
+//     httpGenericErr(w)
+//     return
+//   }
 
-	p, err := newPagination(per, page, count)
-	if err != nil {
-		log.Println(err)
-		httpGenericErr(w)
-		return
-	}
+//   p, err := newPagination(per, page, count) // should return intPer and intOffset
+//   if err != nil {
+//     log.Println(err)
+//     httpGenericErr(w)
+//     return
+//   }
 
-	err = cs.Index(p.Per, p.Page)
-	if err != nil {
-		log.Println(err)
-		httpGenericErr(w)
-		return
-	}
+//   err = cs.Index(p.Per, p.Page) // should accept intPer and intOffset or a paginator object
+//   if err != nil {
+//     log.Println(err)
+//     httpGenericErr(w)
+//     return
+//   }
 
-	renderJSON(w, cs)
-}
+//   renderJSON(w, cs)
+// }
 
-func indexCountryCities(w http.ResponseWriter, r *http.Request, id int) {
-	values := r.URL.Query()
-	page := values.Get("page")
-	per := values.Get("per")
+// func indexCountryCities(w http.ResponseWriter, r *http.Request, id int) {
+//   values := r.URL.Query()
+//   page := values.Get("page")
+//   per := values.Get("per")
 
-	var tmplData struct {
-		Path       string
-		Pagination pagination
-		Country    *country
-	}
-	tmplData.Path = r.URL.Path
+//   var tmplData struct {
+//     Path       string
+//     Pagination pagination
+//     Country    *country
+//   }
+//   tmplData.Path = r.URL.Path
 
-	c := &country{Id: id}
+//   c := &country{Id: id}
 
-	count, err := c.CitiesCount()
-	if err != nil {
-		log.Println(err)
-		httpGenericErr(w)
-		return
-	}
+//   count, err := c.CitiesCount()
+//   if err != nil {
+//     log.Println(err)
+//     httpGenericErr(w)
+//     return
+//   }
 
-	p, err := newPagination(per, page, count)
-	if err != nil {
-		log.Println(err)
-		httpGenericErr(w)
-		return
-	}
-	tmplData.Pagination = p
+//   p, err := newPagination(per, page, count)
+//   if err != nil {
+//     log.Println(err)
+//     httpGenericErr(w)
+//     return
+//   }
+//   tmplData.Pagination = p
 
-	err = c.indexCities(p.Per, p.Page)
-	if err != nil {
-		log.Println(err)
-		httpGenericErr(w)
-		return
-	}
-	tmplData.Country = c
+//   err = c.indexCities(p.Per, p.Page)
+//   if err != nil {
+//     log.Println(err)
+//     httpGenericErr(w)
+//     return
+//   }
+//   tmplData.Country = c
 
-	if isAPIPath(r.URL.Path) {
-		renderJSON(w, tmplData)
-	} else {
-		renderHTML(w, tmplData, "countries/indexCities")
-	}
-}
+//   if isAPIPath(r.URL.Path) {
+//     renderJSON(w, tmplData)
+//   } else {
+//     renderHTML(w, tmplData, "countries/indexCities")
+//   }
+// }

@@ -55,6 +55,9 @@ CREATE TABLE addresses (
     id integer NOT NULL,
     city_id integer NOT NULL,
     name character varying(100) NOT NULL,
+    line1 character varying(100),
+    line2 character varying(100),
+    line3 character varying(100),
     created_on timestamp without time zone DEFAULT now() NOT NULL,
     updated_on timestamp without time zone DEFAULT now() NOT NULL,
     CONSTRAINT addresses_name_check CHECK ((btrim((name)::text) <> ''::text))
