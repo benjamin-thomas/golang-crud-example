@@ -1,4 +1,4 @@
-SELECT 'db/migrations/down/4.sql' AS filepath;
+SELECT 'db/migrations/down/04_drop_table_zip_codes.sql' AS filepath;
 
 DROP TRIGGER zip_codes_touch_trg ON zip_codes;
 

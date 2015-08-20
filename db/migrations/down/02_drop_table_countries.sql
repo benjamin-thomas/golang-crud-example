@@ -1,4 +1,4 @@
-SELECT 'db/migrations/down/2.sql' AS filepath;
+SELECT 'db/migrations/down/02_drop_table_countries.sql' AS filepath;
 
 DROP TRIGGER countries_touch_trg ON countries;
 

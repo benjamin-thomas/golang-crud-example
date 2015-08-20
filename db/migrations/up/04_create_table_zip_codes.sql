@@ -1,4 +1,4 @@
-SELECT 'db/migrations/up/4.sql' AS filepath;
+SELECT 'db/migrations/up/04_create_table_zip_codes.sql' AS filepath;
 
 CREATE TABLE zip_codes (
   id SERIAL PRIMARY KEY,

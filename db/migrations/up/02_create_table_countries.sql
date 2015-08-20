@@ -1,4 +1,4 @@
-SELECT 'db/migrations/up/2.sql' AS filepath;
+SELECT 'db/migrations/up/02_create_table_countries.sql' AS filepath;
 
 CREATE TABLE countries (
   id SERIAL PRIMARY KEY,

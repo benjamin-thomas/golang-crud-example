@@ -1,4 +1,4 @@
-SELECT 'db/migrations/up/5.sql' AS filepath;
+SELECT 'db/migrations/up/05_create_table_addresses.sql' AS filepath;
 
 CREATE TABLE addresses (
   id SERIAL PRIMARY KEY,

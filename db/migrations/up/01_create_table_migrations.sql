@@ -1,4 +1,4 @@
-SELECT 'db/migrations/up/1.sql' AS filepath;
+SELECT 'db/migrations/up/01_create_table_migrations.sql' AS filepath;
 
 CREATE TABLE migrations (
   version INT NOT NULL
