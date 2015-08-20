@@ -1,5 +1,11 @@
 package main
 
+import (
+	"errors"
+	"fmt"
+	"strings"
+)
+
 type address struct {
 	Id      int     `json:"id"`
 	Name    string  `json:"name"`
@@ -13,9 +19,18 @@ type address struct {
 
 type addresses []address
 
-func (as *addresses) index(sPer, sPage string) error {
+func (as *addresses) index(sPer, sPage, q, op string, cols []string) error {
 	per, offset := paginateParams(sPer, sPage)
-	rows, err := db.Query(`
+
+	if op == "" {
+		op = "AND"
+	}
+
+	if op != "AND" && op != "OR" {
+		return errors.New(fmt.Sprintf("index: invalid operator '%s'", op))
+	}
+
+	qry := `
 		SELECT a.id
 				 , a.name
 				 , a.line1
@@ -27,13 +42,37 @@ func (as *addresses) index(sPer, sPage string) error {
 			FROM addresses AS a
 		 INNER
 			JOIN cities AS c
-				ON c.id  = a.city_id
+				ON c.id = a.city_id
 		 INNER
 			JOIN countries AS cn
 				ON cn.id = c.country_id
+	`
 
-		 ORDER BY id LIMIT $1 OFFSET $2
-	`, &per, &offset)
+	if q != "" {
+		if len(cols) == 0 {
+			cols = []string{"name"}
+		}
+
+		for i, c := range cols {
+			if i == 0 {
+				qry += "WHERE "
+			} else {
+				qry += "\n" + op + " "
+			}
+			switch c {
+			case "name":
+				c = "a.name"
+			case "city":
+				c = "c.name"
+			}
+			qry += fmt.Sprint(c, " ILIKE '%"+q+"%' ")
+		}
+	}
+
+	qry += "\nORDER BY id LIMIT $1 OFFSET $2"
+
+	fmt.Println("\033[1;33m", strings.Replace(qry, "\t", "  ", -1), "\n\033[1;m")
+	rows, err := db.Query(qry, &per, &offset)
 	if err != nil {
 		return err
 	}
