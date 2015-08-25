@@ -6,6 +6,14 @@ import (
 	"runtime"
 )
 
+type syntaxErr struct {
+	s string
+}
+
+func (e *syntaxErr) Error() string {
+	return e.s
+}
+
 func prependInfo(err error, file string, line int, ok bool) error {
 	if ok {
 		return fmt.Errorf("%s:%d => %s", file, line, err)

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func indexAddresses(w http.ResponseWriter, r *http.Request) {
@@ -17,22 +17,24 @@ func indexAddresses(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("q =", q)
 
 	sCols := values.Get("cols")
-	op := values.Get("op")
+	fmt.Println("sCols =", sCols)
+	cols := strings.Split(sCols, ",")
 
-	var cols []string
-	json.Unmarshal([]byte(sCols), &cols)
-
-	fmt.Printf("cols = %#v\n", cols)
-	for _, c := range cols {
-		fmt.Println("c =", c)
-	}
+	condOp := values.Get("condOp")
+	matchOp := values.Get("matchOp")
 
 	as := addresses{}
 
-	err := as.index(per, page, q, op, cols)
+	err := as.index(per, page, q, condOp, matchOp, cols)
 	if err != nil {
 		log.Println(err)
-		httpGenericErr(w)
+		if _, ok := err.(*syntaxErr); ok {
+			fmt.Println("ok =", ok)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		} else {
+			fmt.Println("ok =", ok)
+			httpGenericErr(w)
+		}
 		return
 	}
 

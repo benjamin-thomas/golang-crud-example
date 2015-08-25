@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"database/sql"
 	"fmt"
 	"strings"
 )
@@ -13,24 +13,42 @@ type address struct {
 	Line2   *string `json:"line2"`
 	Line3   *string `json:"line3"`
 	City    string  `json:"city"`
-	ZipCode string  `json:"zip_code"`
+	ZipCode *string `json:"zip_code"`
 	Country string  `json:"country"`
 }
 
 type addresses []address
 
-func (as *addresses) index(sPer, sPage, q, op string, cols []string) error {
+func (as *addresses) index(sPer, sPage, q, condOp, matchOp string, cols []string) error {
 	per, offset := paginateParams(sPer, sPage)
 
-	if op == "" {
-		op = "AND"
+	if condOp != "AND" && condOp != "OR" {
+		return &syntaxErr{fmt.Sprintf("index: invalid conditional operator '%s'", condOp, "Use: 'AND' or 'OR'")}
 	}
 
-	if op != "AND" && op != "OR" {
-		return errors.New(fmt.Sprintf("index: invalid operator '%s'", op))
+	if matchOp != "=" && matchOp != "LIKE" && matchOp != "ILIKE" {
+		return &syntaxErr{fmt.Sprintf("index: invalid match operator '%s', Use: '=' or 'LIKE' or 'ILIKE'", matchOp)}
 	}
 
+	if len(cols) == 0 || cols[0] == "" {
+		cols = []string{"name"}
+	}
+
+	allowedCols := []string{"id", "name", "line1", "line2", "line3", "city", "zip_code", "country"}
+	for _, c := range cols {
+		for i, ac := range allowedCols {
+			if c == ac {
+				break
+			}
+			if i == len(allowedCols)-1 {
+				return &syntaxErr{fmt.Sprintf("index: Bad column name '%s'. Allowed column names: %#v", c, allowedCols)}
+			}
+		}
+	}
+
+	// Using a CTE to avoid name collisions on filtering
 	qry := `
+	WITH qry AS (
 		SELECT a.id
 				 , a.name
 				 , a.line1
@@ -46,33 +64,36 @@ func (as *addresses) index(sPer, sPage, q, op string, cols []string) error {
 		 INNER
 			JOIN countries AS cn
 				ON cn.id = c.country_id
+	)
+
+	SELECT * FROM qry
 	`
 
 	if q != "" {
-		if len(cols) == 0 {
-			cols = []string{"name"}
-		}
-
 		for i, c := range cols {
 			if i == 0 {
 				qry += "WHERE "
 			} else {
-				qry += "\n" + op + " "
+				qry += "\n" + condOp + " "
 			}
-			switch c {
-			case "name":
-				c = "a.name"
-			case "city":
-				c = "c.name"
-			}
-			qry += fmt.Sprint(c, " ILIKE '%"+q+"%' ")
+			qry += c + " " + matchOp + " $3"
 		}
 	}
 
 	qry += "\nORDER BY id LIMIT $1 OFFSET $2"
 
 	fmt.Println("\033[1;33m", strings.Replace(qry, "\t", "  ", -1), "\n\033[1;m")
-	rows, err := db.Query(qry, &per, &offset)
+
+	var rows *sql.Rows
+	var err error
+	if q == "" {
+		rows, err = db.Query(qry, per, offset)
+	} else {
+		fmt.Println("$1 =", per)
+		fmt.Println("$2 =", offset)
+		fmt.Println("$3 =", q)
+		rows, err = db.Query(qry, per, offset, q)
+	}
 	if err != nil {
 		return err
 	}

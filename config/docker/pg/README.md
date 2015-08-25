@@ -19,6 +19,7 @@ env | grep ^PG
 # Run with the following command
 ```bash
 docker run --name golang_crud_example-pg -e POSTGRES_PASSWORD=$PGPASSWORD -d postgres
+docker run --name golang_crud_example-pg -e POSTGRES_PASSWORD=$PGPASSWORD -d postgres postgres -d 5 # verbose logging, see postgres --help
 ```
 
 ## 4. Find the containrs running IP
