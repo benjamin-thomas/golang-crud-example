@@ -12,11 +12,3 @@ func isAPIPath(path string) bool {
 	}
 	return false
 }
-
-func mustReadFile(path string) []byte {
-	b, err := ioutil.ReadFile(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return b
-}
