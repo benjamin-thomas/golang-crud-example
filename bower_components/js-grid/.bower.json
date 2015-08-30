@@ -1,0 +1,39 @@
+{
+  "name": "jsgrid",
+  "version": "1.1.0",
+  "main": [
+    "dist/jsgrid.js",
+    "dist/jsgrid.css",
+    "dist/jsgrid-theme.css"
+  ],
+  "ignore": [
+    "demos",
+    "external",
+    "tests",
+    ".editorconfig",
+    ".gitignore",
+    ".travis.yml",
+    "bower.json",
+    "Gruntfile.js",
+    "LICENSE",
+    "package.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "jquery": ">=1.8.3"
+  },
+  "devDependencies": {
+    "qunit": ">=1.10.0"
+  },
+  "homepage": "https://github.com/tabalinas/jsgrid",
+  "_release": "1.1.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.1.0",
+    "commit": "18efe684fbd333608deda29d178151e9e59a8c09"
+  },
+  "_source": "git://github.com/tabalinas/jsgrid.git",
+  "_target": "~1.1.0",
+  "_originalSource": "js-grid",
+  "_direct": true
+}

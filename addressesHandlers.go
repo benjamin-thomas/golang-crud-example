@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func indexAddresses(w http.ResponseWriter, r *http.Request) {
+func apiIndexAddresses(w http.ResponseWriter, r *http.Request) {
 	values := r.URL.Query()
 
 	per := values.Get("per")
@@ -39,4 +39,8 @@ func indexAddresses(w http.ResponseWriter, r *http.Request) {
 	}
 
 	renderJSON(w, as)
+}
+
+func indexAddresses(w http.ResponseWriter, r *http.Request) {
+	renderHTML(w, nil, "addresses/index")
 }

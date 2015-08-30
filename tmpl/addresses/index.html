@@ -1,0 +1,179 @@
+{{ define "content" }}
+
+<!--
+<h1>
+  Listing Addresses
+</h1>
+
+<div class="responsive-table">
+  <div class="scrollable-area">
+    <table class="table table-bordered table-striped datatable" data-ajax="/datatables/countries">
+
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Line1</th>
+          <th>Line2</th>
+          <th>Line3</th>
+          <th>City</th>
+          <th>Zip Code</th>
+          <th>Country</th>
+        </tr>
+      </thead>
+
+    </table>
+
+    <table id="grid">
+
+    </table>
+    <div id="jqGridPager"></div>
+
+  </div>
+</div>
+
+<p>
+<a href="/addresses/new">Create</a>
+</p>
+
+-->
+
+<script type="text/jsx;harmony=true" src="/assets_dev/_/react-datatable.js"></script>
+
+<script>
+//   document.addEventListener("DOMContentLoaded",
+    // function() {
+    //  $('#grid').jqGrid({
+    //    url: '/api/addresses',
+    //    datatype: "json",
+    //    colModel: [
+    //      { label: 'ID', name: 'id' },
+    //      { label: 'Name', name: 'name', width: 75 },
+    //      { label: 'Line1', name: 'line1' },
+    //      { label: 'Line2', name: 'line2' },
+    //      { label: 'Line3', name: 'line3' },
+    //      { label: 'City', name: 'city' },
+    //      { label: 'Zip Code', name: 'zip_code', width: 90 },
+    //      { label: 'Country', name: 'country' },
+    //    ],
+    //    viewrecords: true, // show the current page, data rang and total records on the toolbar
+    //    width: 780,
+    //    height: 200,
+    //    rowNum: 3,
+    //    rowList:[3,10,20,30],
+    //    pager: "#jqGridPager",
+    //    prmNames: {
+    //      id: "_rowid",
+    //      nd: null, // time passed to the request, prevents IE from caching the request?
+    //      sidx: null, //"sort_by",
+    //      search: null, //"_search", // true or false if searching params filled
+    //      page: "page",
+    //      rows: "per",
+    //      oper: "_oper",
+    //      sort: "sort_by",
+    //      order: "order_by"
+    //    }
+    //  });
+    //  $('#grid').jqGrid('filterToolbar', { searchOnEnter: true });
+    // }
+    // function() {
+    //     console.log("init grid");
+    //   $("#grid").jsGrid({
+    //     width: "100%",
+    //     height: "400px",
+
+    //     filtering: true,
+    //     editing: true,
+    //     sorting: true,
+    //     paging: true,
+    //     autoload: true,
+    //     //pageLoading: true,
+    //     //pageSize: 15,
+    //     //pageIndex: 1,
+
+    //     // data: db.clients,
+    //     controller: {
+    //         loadData: function(filter) {
+    //             console.log("loading");
+    //             return $.ajax({
+    //                 type: "GET",
+    //                 url: "/addresses",
+    //                 data: filter,
+    //                 dataType: "json"
+    //             });
+    //         },
+
+    //         insertItem: function(item) {
+    //             return $.ajax({
+    //                 type: "POST",
+    //                 url: "/addresses",
+    //                 data: item,
+    //                 dataType: "json"
+    //             });
+    //         },
+
+    //         updateItem: function(item) {
+    //             return $.ajax({
+    //                 type: "PUT",
+    //                 url: "/addresses",
+    //                 data: item,
+    //                 dataType: "json"
+    //             });
+    //         },
+
+    //         deleteItem: function(item) {
+    //             return $.ajax({
+    //                 type: "DELETE",
+    //                 url: "/addresses",
+    //                 data: item,
+    //                 dataType: "json"
+    //             });
+    //         },
+    //     },
+
+    //     fields: [
+    //         { title: "ID", name: "id", type: "number"},
+    //         { title: "Name", name: "name", type: "text", width: 150 },
+    //         { title: "Line1", name: "line1", type: "text"},
+    //         //{ title: "Line2", name: "line2", type: "text"},
+    //         //{ title: "Line3", name: "line3", type: "text"},
+    //         { title: "City", name: "city", type: "text"},
+    //         { title: "Zip Code", name: "zip_code", type: "text"},
+    //         {
+    //             title: "Country",
+    //             name: "country",
+    //             type: "select",
+    //             items: [
+    //                 { name: "", id: 0 },
+    //                 { name: "United States", id: 1 },
+    //                 { name: "Canada", id: 2 },
+    //                 { name: "United Kingdom", id: 3 }
+    //             ],
+    //             valueField: "name", // was id
+    //             textField: "name"
+    //         },
+    //         { name: "Married", type: "checkbox", title: "Is Married", sorting: false },
+    //         { type: "control" }
+    //     ]
+    //   });
+    // }
+                            // function() {
+                            //     webix.ui({
+                            //         view:"datatable",
+                            //         url:"/api/addresses",
+                            //         columns:[
+                            //             { id:"rank",    header: ["Rank", {content:"textFilter"}], css:"rank",          width:50},
+                            //             { id:"title",   header:["Film title", {content: "serverFilter"}], sort: "server", width:200},
+                            //             { id:"year",    header:["Released", {content: "serverFilter"}], sort: "server" , width:80},
+                            //             { id:"votes",   header:"Votes",     width:100}
+                            //         ],
+                            //         // data:[
+                            //         //     { id:1,name:"The Shawshank Redemption",year:1994},
+                            //         //     { id:2,name:"The Godfather",year:1972}
+                            //         // ]
+                            //     });
+                            // }
+//   );
+</script>
+
+{{ end }}

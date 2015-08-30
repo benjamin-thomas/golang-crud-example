@@ -133,6 +133,8 @@
 
     });
 
-    $(document).ready(initDataTables);
+    $(document).ready(
+        // initDataTables
+    );
 
 }());

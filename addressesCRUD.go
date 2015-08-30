@@ -22,10 +22,16 @@ type addresses []address
 func (as *addresses) index(sPer, sPage, q, condOp, matchOp string, cols []string) error {
 	per, offset := paginateParams(sPer, sPage)
 
+	if condOp == "" {
+		condOp = "OR"
+	}
 	if condOp != "AND" && condOp != "OR" {
-		return &syntaxErr{fmt.Sprintf("index: invalid conditional operator '%s'", condOp, "Use: 'AND' or 'OR'")}
+		return &syntaxErr{fmt.Sprintf("index: invalid conditional operator '%s', Use: 'AND' or 'OR'", condOp)}
 	}
 
+	if matchOp == "" {
+		matchOp = "="
+	}
 	if matchOp != "=" && matchOp != "LIKE" && matchOp != "ILIKE" {
 		return &syntaxErr{fmt.Sprintf("index: invalid match operator '%s', Use: '=' or 'LIKE' or 'ILIKE'", matchOp)}
 	}

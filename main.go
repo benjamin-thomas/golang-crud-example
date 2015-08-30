@@ -203,6 +203,7 @@ func main() {
 	// r.HandleFunc("/countries", createCountry).Methods("POST")
 	// r.HandleFunc("/countries/{id}", intKeyProvider("id", updateCountry)).Methods("PUT", "PATCH")
 
+	r.HandleFunc("/api/addresses", apiIndexAddresses).Methods("GET")
 	r.HandleFunc("/addresses", indexAddresses).Methods("GET")
 
 	// r.HandleFunc("/countries/{id}/contracts/new", newCountry).Methods("GET")

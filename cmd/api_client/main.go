@@ -24,7 +24,7 @@ func main() {
 	matchOp := flag.String("matchOp", "=", "Match operator, = or LIKE or ILIKE")
 	flag.Parse()
 
-	urlBase := "http://localhost:8080/"
+	urlBase := "http://localhost:8080/api/"
 
 	user := os.Getenv("CRUD_USER")
 	pw := os.Getenv("CRUD_PW")
