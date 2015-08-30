@@ -19,37 +19,47 @@ type address struct {
 
 type addresses []address
 
-func (as *addresses) index(sPer, sPage, q, condOp, matchOp string, cols []string) error {
+func (as *addresses) index(sPer, sPage, q, op string) error {
 	per, offset := paginateParams(sPer, sPage)
 
-	if condOp == "" {
-		condOp = "OR"
+	if op == "" {
+		op = "OR"
 	}
-	if condOp != "AND" && condOp != "OR" {
-		return &syntaxErr{fmt.Sprintf("index: invalid conditional operator '%s', Use: 'AND' or 'OR'", condOp)}
-	}
-
-	if matchOp == "" {
-		matchOp = "="
-	}
-	if matchOp != "=" && matchOp != "LIKE" && matchOp != "ILIKE" {
-		return &syntaxErr{fmt.Sprintf("index: invalid match operator '%s', Use: '=' or 'LIKE' or 'ILIKE'", matchOp)}
+	if op != "AND" && op != "OR" {
+		return &syntaxErr{fmt.Sprintf("index: invalid conditional operator '%s', Use: 'AND' or 'OR'", op)}
 	}
 
-	if len(cols) == 0 || cols[0] == "" {
-		cols = []string{"name"}
+	qryDefs := strings.Split(q, ",")
+	fmt.Printf("qryDefs = %#v\n", qryDefs)
+
+	type col struct {
+		colName, searchString string
 	}
+	var cols []col
 
 	allowedCols := []string{"id", "name", "line1", "line2", "line3", "city", "zip_code", "country"}
-	for _, c := range cols {
+	for _, d := range qryDefs {
+		if d == "" {
+			continue
+		}
+		fmt.Println("d =", d)
+		dd := strings.SplitN(d, ":", 2)
+		if len(dd) != 2 {
+			return &syntaxErr{fmt.Sprintf("index: Bad query string: '%s', use format: 'col_name:searched_value'", q)}
+		}
+		colName, term := dd[0], dd[1]
+		fmt.Println("colName =", colName)
+		fmt.Println("term =", term)
 		for i, ac := range allowedCols {
-			if c == ac {
+			if colName == ac {
 				break
 			}
 			if i == len(allowedCols)-1 {
-				return &syntaxErr{fmt.Sprintf("index: Bad column name '%s'. Allowed column names: %#v", c, allowedCols)}
+				return &syntaxErr{fmt.Sprintf("index: Bad column name '%s'. Allowed column names: %#v", colName, allowedCols)}
 			}
 		}
+		cols = append(cols, col{colName, term})
+		fmt.Println("cols =", cols)
 	}
 
 	// Using a CTE to avoid name collisions on filtering
@@ -75,14 +85,38 @@ func (as *addresses) index(sPer, sPage, q, condOp, matchOp string, cols []string
 	SELECT * FROM qry
 	`
 
-	if q != "" {
-		for i, c := range cols {
-			if i == 0 {
-				qry += "WHERE "
-			} else {
-				qry += "\n" + condOp + " "
-			}
-			qry += c + " " + matchOp + " $3"
+	for i, c := range cols {
+		if i == 0 {
+			qry += "WHERE "
+		} else {
+			qry += "\n" + op + " "
+		}
+		switch {
+		case strings.HasPrefix(c.searchString, "="): // force equals if needed
+			cols[i].searchString = strings.Replace(c.searchString, "=", "", 1)
+			qry += c.colName + " " + "=" + " " + fmt.Sprintf("$%d", i+3)
+		case strings.HasPrefix(c.searchString, "!="): // force equals if needed
+			cols[i].searchString = strings.Replace(c.searchString, "!=", "", 1)
+			qry += c.colName + " " + "!=" + " " + fmt.Sprintf("$%d", i+3)
+		case strings.HasPrefix(c.searchString, ">="):
+			cols[i].searchString = strings.Replace(c.searchString, ">=", "", 1)
+			qry += c.colName + " " + ">=" + " " + fmt.Sprintf("$%d", i+3)
+		case strings.HasPrefix(c.searchString, ">"):
+			cols[i].searchString = strings.Replace(c.searchString, ">", "", 1)
+			qry += c.colName + " " + ">" + " " + fmt.Sprintf("$%d", i+3)
+		case strings.HasPrefix(c.searchString, "<="):
+			cols[i].searchString = strings.Replace(c.searchString, "<=", "", 1)
+			qry += c.colName + " " + "<=" + " " + fmt.Sprintf("$%d", i+3)
+		case strings.HasPrefix(c.searchString, "<"):
+			cols[i].searchString = strings.Replace(c.searchString, "<", "", 1)
+			qry += c.colName + " " + "<" + " " + fmt.Sprintf("$%d", i+3)
+		case strings.Contains(c.searchString, "%"):
+			qry += c.colName + " " + "LIKE" + " " + fmt.Sprintf("$%d", i+3)
+		case strings.Contains(c.searchString, "*"):
+			cols[i].searchString = strings.Replace(c.searchString, "*", "%", -1)
+			qry += c.colName + " " + "ILIKE" + " " + fmt.Sprintf("$%d", i+3)
+		default:
+			qry += c.colName + " " + "=" + " " + fmt.Sprintf("$%d", i+3)
 		}
 	}
 
@@ -90,16 +124,19 @@ func (as *addresses) index(sPer, sPage, q, condOp, matchOp string, cols []string
 
 	fmt.Println("\033[1;33m", strings.Replace(qry, "\t", "  ", -1), "\n\033[1;m")
 
+	var qryParams []interface{}
+	qryParams = append(qryParams, per, offset)
+	fmt.Println("$1 =", per)
+	fmt.Println("$2 =", offset)
+	for i, c := range cols {
+		fmt.Printf("$%d = %v\n", i+3, c.searchString)
+		qryParams = append(qryParams, c.searchString)
+	}
+
+	fmt.Println("qryParams =", qryParams)
 	var rows *sql.Rows
 	var err error
-	if q == "" {
-		rows, err = db.Query(qry, per, offset)
-	} else {
-		fmt.Println("$1 =", per)
-		fmt.Println("$2 =", offset)
-		fmt.Println("$3 =", q)
-		rows, err = db.Query(qry, per, offset, q)
-	}
+	rows, err = db.Query(qry, qryParams...)
 	if err != nil {
 		return err
 	}

@@ -11,17 +11,15 @@ import (
 )
 
 /*
-* curl -u dev:dev -v 'http://localhost:8080/addresses' -G --data-urlencode "per=1" --data-urlencode "page=1" --data-urlencode "q=united" --data-urlencode 'cols=["country", "line1"]' --data-urlencode 'condOp=OR'
+* curl -u dev:dev -v 'http://localhost:8080/addresses' -G --data-urlencode "per=1" --data-urlencode "page=1" --data-urlencode "q=united" --data-urlencode 'cols=["country", "line1"]' --data-urlencode 'op=OR'
  */
 
 func main() {
 	path := flag.String("path", "", "The path to be queried: 'http://host:port/[path]?params'")
 	per := flag.Int("per", 10, "The max number of results to display.")
 	page := flag.Int("page", 1, "The page number to paginate.")
-	q := flag.String("q", "", "The search string")
-	cols := flag.String("cols", "", "A comma delimited list of column names to search into.")
-	condOp := flag.String("condOp", "OR", "Conditional operator, AND or OR")
-	matchOp := flag.String("matchOp", "=", "Match operator, = or LIKE or ILIKE")
+	q := flag.String("q", "", `The search params, ex: 'name:*Rome*,city:Paris,id:<99'`)
+	op := flag.String("op", "OR", "Conditional operator, AND or OR")
 	flag.Parse()
 
 	urlBase := "http://localhost:8080/api/"
@@ -43,14 +41,10 @@ func main() {
 		params += "&q=" + *q
 	}
 
-	if *cols != "" {
-		params += "&cols=" + *cols
+	if *op != "AND" && *op != "OR" {
+		*op = "OR"
 	}
-
-	if *condOp != "AND" && *condOp != "OR" {
-		*condOp = "OR"
-	}
-	params += "&condOp=" + *condOp + "&matchOp=" + url.QueryEscape(*matchOp)
+	params += "&op=" + url.QueryEscape(*op)
 
 	u := urlBase + *path + params
 

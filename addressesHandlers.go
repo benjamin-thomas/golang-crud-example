@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 )
 
 func apiIndexAddresses(w http.ResponseWriter, r *http.Request) {
@@ -14,18 +13,11 @@ func apiIndexAddresses(w http.ResponseWriter, r *http.Request) {
 	page := values.Get("page")
 
 	q := values.Get("q")
-	fmt.Println("q =", q)
-
-	sCols := values.Get("cols")
-	fmt.Println("sCols =", sCols)
-	cols := strings.Split(sCols, ",")
-
-	condOp := values.Get("condOp")
-	matchOp := values.Get("matchOp")
+	op := values.Get("op")
 
 	as := addresses{}
 
-	err := as.index(per, page, q, condOp, matchOp, cols)
+	err := as.index(per, page, q, op)
 	if err != nil {
 		log.Println(err)
 		if _, ok := err.(*syntaxErr); ok {
