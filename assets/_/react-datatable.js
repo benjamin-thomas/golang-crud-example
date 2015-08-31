@@ -117,13 +117,8 @@ var CommentForm = React.createClass({
 });
 
 var DataTable = React.createClass({
-    loadData: function(q) {
-        var params = '';
-        if (q) {
-            params += '?name=' + 'per=10&page=1&q=%25'+q+'%25&cols=name&condOp=OR&matchOp=ILIKE';
-        }
+    loadData: function(params) {
         var fullURL = this.props.url+params;
-        console.log("fullURL:", fullURL);
         $.ajax({
             url: fullURL,
             dataType: 'json',
@@ -141,36 +136,80 @@ var DataTable = React.createClass({
         return {
             data: [],
             cols: {},
-            params: '?per=10&page=1',
+            params: '',
+            conditionalOperator: 'OR',
+            per: '10',
+            page: '1',
         };
     },
 
     componentDidMount: function() {
-        this.loadData();
+        this.loadData(this.state.params);
+    },
+
+    updateParams: function(key, value) {
+        var p = this.state.params;
+        if (p === '') {
+            p = "?per=10&page=1&op=OR&q=";
+        }
+        if (p.length > 0) {
+            p = p.slice(1); // remove ?
+        }
+        var kvs = p.split('&');
+        for (var i = 0; i < kvs.length; i++) {
+            var kv = kvs[i];
+            var s = kv.split('=');
+            var k = s[0],
+                v = s[1];
+            if (k === key) {
+                kvs[i] = k + "=" + value;
+            }
+        }
+        newParams = '?' + kvs.join('&');
+        this.setState({
+            params: newParams,
+        });
+        window.location.hash = newParams;
+        this.loadData(newParams);
     },
 
     onUserInput: function(search, name) { // searchValue, searchColumn
-        console.log("search again:", search, "name:", name);
-        this.loadData(search);
-
         var cols = this.state.cols;
         if (search === "") {
             delete cols[name];
         } else {
             cols[name] = search;
         }
+        var keys = Object.keys(cols);
+        q = "";
+        for (var i = 0; i < keys.length; i++) {
+            if (i > 0) {
+                q += ","
+            }
+            var k = keys[i];
+            var v = encodeURIComponent(cols[k]);
+            q += k + ":" + v;
+        }
         this.setState({
             cols: cols,
         })
-        var keys = Object.keys(cols);
-        params = '?per=10&page=1';
-        for (var i = 0; i < keys.length; i++) {
-            var k = keys[i];
-            params += "&" + k + "=" + cols[k];
-        }
+        this.updateParams('q', q);
+    },
+
+    onChangeConditionalOperator: function(e) {
+        var value = e.target.value;
         this.setState({
-            params: params,
+            conditionalOperator: value,
         })
+        this.updateParams('op', value)
+    },
+
+    onChangePer: function(e) {
+        var value = e.target.value;
+        this.updateParams('per', value);
+        this.setState({
+            per: value,
+        });
     },
 
     render: function() {
@@ -181,6 +220,29 @@ var DataTable = React.createClass({
                     <TableHeaders onUserInput={this.onUserInput} />
                     <TableRows data={this.state.data} />
                 </table>
+
+                Conditional operator:
+                <select onChange={this.onChangeConditionalOperator}>
+                  <option>OR</option>
+                  <option>AND</option>
+                </select>
+
+                <br />
+
+                Per:
+                <input type="number" step="10" name="per" value={this.state.per} onChange={this.onChangePer} />
+
+                <br />
+
+                Per:
+                <select onChange={this.onChangePer}>
+                    <option>1</option>
+                    <option>5</option>
+                    <option selected="10">10</option>
+                    <option>30</option>
+                    <option>50</option>
+                    <option>100</option>
+                </select>
 
                 <p>
                   Selected: {JSON.stringify(this.state.cols)}
@@ -198,7 +260,6 @@ var DataTable = React.createClass({
 
 var TableHeaders = React.createClass({
     onUserInput: function(search, name) {
-        console.log("search in headers: ", search, "name:", name);
         this.props.onUserInput(search, name);
     },
     render: function() {
@@ -209,7 +270,7 @@ var TableHeaders = React.createClass({
             { label: 'Line2',    name: 'line2'},
             { label: 'Line3',    name: 'line3'},
             { label: 'City',     name: 'city'},
-            { label: 'Zip Code', name: 'zip code'},
+            { label: 'Zip Code', name: 'zip_code'},
             { label: 'Country',  name: 'country'}
         ],
         headers = [],

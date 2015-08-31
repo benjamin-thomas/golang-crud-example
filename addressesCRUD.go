@@ -30,6 +30,7 @@ func (as *addresses) index(sPer, sPage, q, op string) error {
 	}
 
 	qryDefs := strings.Split(q, ",")
+	fmt.Println("q =", q)
 	fmt.Printf("qryDefs = %#v\n", qryDefs)
 
 	type col struct {
