@@ -21,7 +21,7 @@ var (
 )
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/countries", http.StatusFound)
+	http.Redirect(w, r, "/addresses", http.StatusFound)
 }
 
 // func contractsHandler(w http.ResponseWriter, r *http.Request, key string) {
