@@ -15,9 +15,12 @@ func apiIndexAddresses(w http.ResponseWriter, r *http.Request) {
 	q := values.Get("q")
 	op := values.Get("op")
 
+	sort := values.Get("sort")
+	dir := values.Get("dir")
+
 	as := addresses{}
 
-	err := as.index(per, page, q, op)
+	err := as.index(per, page, q, op, sort, dir)
 	if err != nil {
 		log.Println(err)
 		if _, ok := err.(*syntaxErr); ok {

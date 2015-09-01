@@ -13,11 +13,11 @@ import (
 func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, `
-curl -u $CRUD_USER:$CRUD_PW -v 'http://localhost:8080/api/addresses' -G --data-urlencode "per=3" --data-urlencode "page=1" --data-urlencode "op=OR" --data-urlencode 'q=name:pari*,city:London'
+curl -u $CRUD_USER:$CRUD_PW -v 'http://localhost:8080/api/addresses' -G --data-urlencode "per=3" --data-urlencode "page=1" --data-urlencode "op=OR" --data-urlencode 'q=name:pari*,city:London' --data-urlencode "sort=city" --data-urlencode "dir=DESC"
 
 OR
 
-go run ./cmd/api_client/main.go -path addresses -per 3 -page 1 -op OR -q 'name:pari*,city:London'
+go run ./cmd/api_client/main.go -path addresses -per 3 -page 1 -op OR -q 'name:pari*,city:London' -sort city -dir DESC
 
 Usage of %s:\n
 `, os.Args[0])
@@ -29,6 +29,8 @@ Usage of %s:\n
 	page := flag.Int("page", 1, "The page number to paginate.")
 	q := flag.String("q", "", `The search params, ex: 'name:*Rome*,city:Paris,id:<99'`)
 	op := flag.String("op", "OR", "Conditional operator, AND or OR")
+	sort := flag.String("sort", "", "Sort by column name")
+	dir := flag.String("dir", "ASC", "Sort direction, ASC or DESC")
 
 	flag.Parse()
 
@@ -55,6 +57,12 @@ Usage of %s:\n
 		*op = "OR"
 	}
 	params += "&op=" + url.QueryEscape(*op)
+
+	if *sort != "" {
+		params += "&sort=" + *sort
+	}
+
+	params += "&dir=" + *dir
 
 	u := urlBase + *path + params
 

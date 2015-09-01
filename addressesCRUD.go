@@ -19,7 +19,7 @@ type address struct {
 
 type addresses []address
 
-func (as *addresses) index(sPer, sPage, q, op string) error {
+func (as *addresses) index(sPer, sPage, q, op, sort, dir string) error {
 	per, offset := paginateParams(sPer, sPage)
 
 	if op == "" {
@@ -27,6 +27,10 @@ func (as *addresses) index(sPer, sPage, q, op string) error {
 	}
 	if op != "AND" && op != "OR" {
 		return &syntaxErr{fmt.Sprintf("index: invalid conditional operator '%s', Use: 'AND' or 'OR'", op)}
+	}
+
+	if dir != "ASC" && dir != "DESC" {
+		dir = "ASC"
 	}
 
 	qryDefs := strings.Split(q, ",")
@@ -61,6 +65,21 @@ func (as *addresses) index(sPer, sPage, q, op string) error {
 		}
 		cols = append(cols, col{colName, term})
 		fmt.Println("cols =", cols)
+	}
+
+	if sort == "" {
+		sort = "id"
+	}
+	validSort := false
+	for _, ac := range allowedCols {
+		if sort == ac {
+			validSort = true
+			break
+		}
+	}
+
+	if !validSort {
+		return &syntaxErr{fmt.Sprintf("index: Bad sort name '%s'. Allowed column names: %#v", sort, allowedCols)}
 	}
 
 	// Using a CTE to avoid name collisions on filtering
@@ -121,7 +140,10 @@ func (as *addresses) index(sPer, sPage, q, op string) error {
 		}
 	}
 
-	qry += "\nORDER BY id LIMIT $1 OFFSET $2"
+	if sort != "" {
+		qry += "\nORDER BY " + sort + " " + dir
+	}
+	qry += "\nLIMIT $1 OFFSET $2"
 
 	fmt.Println("\033[1;33m", strings.Replace(qry, "\t", "  ", -1), "\n\033[1;m")
 

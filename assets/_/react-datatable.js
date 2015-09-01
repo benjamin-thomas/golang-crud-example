@@ -140,6 +140,8 @@ var DataTable = React.createClass({
             conditionalOperator: 'OR',
             per: '10',
             page: '1',
+            sort: 'id',
+            dir: 'DESC',
         };
     },
 
@@ -147,10 +149,9 @@ var DataTable = React.createClass({
         this.loadData(this.state.params);
     },
 
-    updateParams: function(key, value) {
-        var p = this.state.params;
+    updateParams: function(p, key, value) {
         if (p === '') {
-            p = "?per=10&page=1&op=OR&q=";
+            p = "?per=10&page=1&op=OR&q=&sort=&dir=";
         }
         if (p.length > 0) {
             p = p.slice(1); // remove ?
@@ -166,11 +167,18 @@ var DataTable = React.createClass({
             }
         }
         newParams = '?' + kvs.join('&');
+        return newParams;
+    },
+
+    onSort: function(sort, dir) {
+        var p = this.state.params;
+        p = this.updateParams(p, 'dir', dir);
+        p = this.updateParams(p, 'sort', sort);
         this.setState({
-            params: newParams,
+            params: p,
         });
-        window.location.hash = newParams;
-        this.loadData(newParams);
+        window.location.hash = p;
+        this.loadData(p);
     },
 
     onUserInput: function(search, name) { // searchValue, searchColumn
@@ -193,7 +201,13 @@ var DataTable = React.createClass({
         this.setState({
             cols: cols,
         })
-        this.updateParams('q', q);
+        var p = this.state.params;
+        p = this.updateParams(p, 'q', q);
+        this.setState({
+            params: p,
+        });
+        window.location.hash = p;
+        this.loadData(p);
     },
 
     onChangeConditionalOperator: function(e) {
@@ -201,15 +215,39 @@ var DataTable = React.createClass({
         this.setState({
             conditionalOperator: value,
         })
-        this.updateParams('op', value)
+        var p = this.state.params;
+        p = this.updateParams(p, 'op', value)
+        this.setState({
+            params: p,
+        });
+        window.location.hash = p;
+        this.loadData(p);
     },
 
     onChangePer: function(e) {
         var value = e.target.value;
-        this.updateParams('per', value);
+        var p = this.state.params;
+        p = this.updateParams(p, 'per', value);
         this.setState({
             per: value,
         });
+        this.setState({
+            params: p,
+        });
+        window.location.hash = p;
+        this.loadData(p);
+    },
+
+    onChangePage: function(e) {
+        var value = e.target.value;
+        var p = this.state.params;
+        p = this.updateParams(p, 'page', value);
+        this.setState({
+            page: value,
+            params: p,
+        })
+        window.location.hash = p;
+        this.loadData(p);
     },
 
     render: function() {
@@ -217,7 +255,7 @@ var DataTable = React.createClass({
             <div className="responsive-table">
               <div className="scrollable-area">
                 <table className="table table-bordered table-striped">
-                    <TableHeaders onUserInput={this.onUserInput} />
+                    <TableHeaders onUserInput={this.onUserInput} onSort={this.onSort} />
                     <TableRows data={this.state.data} />
                 </table>
 
@@ -231,6 +269,9 @@ var DataTable = React.createClass({
 
                 Per:
                 <input type="number" step="10" name="per" value={this.state.per} onChange={this.onChangePer} />
+
+                Page:
+                <input type="number" name="page" value={this.state.page} onChange={this.onChangePage} />
 
                 <br />
 
@@ -262,6 +303,9 @@ var TableHeaders = React.createClass({
     onUserInput: function(search, name) {
         this.props.onUserInput(search, name);
     },
+    onSort: function(sort, dir) {
+        this.props.onSort(sort, dir);
+    },
     render: function() {
         var attrs = [
             { label: 'ID',       name: 'id'},
@@ -278,7 +322,7 @@ var TableHeaders = React.createClass({
 
         for (var i = 0; i < attrs.length; i++) {
             attr = attrs[i];
-            headers.push(<TableHeader value={attr.label} />);
+            headers.push(<TableHeader name={attr.name} value={attr.label} onSort={this.onSort} />);
             searchers.push(<TableSearcher name={attr.name} onUserInput={this.onUserInput} />);
         }
         return (
@@ -300,13 +344,16 @@ var TableHeader = React.createClass({
             count: 0,
         };
     },
+    dir: function(count) {
+        return ['ASC', 'DESC'][count%2]
+    },
     onClick: function() {
+        this.props.onSort(this.props.name, this.dir(this.state.count+1)); // FIXME: hacky, not sure what's going on here
         this.setState({count: this.state.count+1});
     },
     render: function() {
-        var dir = ['ASC', 'DESC'][this.state.count%2]
         return (
-            <th className="no-mouse-select" onClick={this.onClick}>{this.props.value} [{dir}] ({this.state.count})</th>
+            <th className="no-mouse-select" onClick={this.onClick}>{this.props.value} [{this.dir(this.state.count)}] ({this.state.count})</th>
         );
     }
 });
