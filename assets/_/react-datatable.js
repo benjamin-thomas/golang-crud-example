@@ -255,11 +255,6 @@ var TableSearcher = React.createClass({
 });
 
 var TableRows = React.createClass({
-    getInitialState: function() {
-        return {
-            data: [],
-        }
-    },
     render: function() {
         var rows = this.props.data.map(function(addr) {
             return (
