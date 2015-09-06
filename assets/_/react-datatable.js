@@ -31,6 +31,10 @@ var DataTable = React.createClass({
         this.loadData(this.state.params);
     },
 
+    componentDidUpdate: function() {
+        console.log(new Date, "did update");
+    },
+
     updateParams: function(p, key, value) {
         if (p === '') {
             p = "?per=10&page=1&op=OR&q=&sort=&dir=";
