@@ -1,5 +1,12 @@
 #!/bin/bash
 
+set -e
+APP_NAME=$(basename $(pwd))
+
+set -x -a
+source ~/.env/$APP_NAME
+PGHOST=$(docker inspect --format '{{ .NetworkSettings.IPAddress  }}' ${APP_NAME}-pg)
+
 docker run --rm \
          --env PGHOST=$PGHOST \
          --env PGPORT=$PGPORT \

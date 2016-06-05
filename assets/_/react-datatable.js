@@ -195,7 +195,7 @@ var TableHeaders = React.createClass({
     render: function() {
         var attrs = [
             { label: 'ID',       name: 'id'},
-            { label: 'Name',     name: 'name'},
+            { label: 'Name2',     name: 'name'},
             { label: 'Line1',    name: 'line1'},
             { label: 'Line2',    name: 'line2'},
             { label: 'Line3',    name: 'line3'},

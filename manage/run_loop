@@ -1,0 +1,6 @@
+#!/bin/bash
+
+while true;do
+  ./manage/run
+  sleep 0.1;
+done

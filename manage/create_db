@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+APP_NAME=$(basename $(pwd))
+
+set -x -a
+source ~/.env/$APP_NAME
+PGHOST=$(docker inspect --format '{{ .NetworkSettings.IPAddress  }}' ${APP_NAME}-pg)
+
+./manage/psql --echo-all --dbname postgres --command="CREATE DATABASE $PGDATABASE;"

@@ -18,7 +18,15 @@ var (
 	defaultPer       int = 10
 	stmtGetCountry   *sql.Stmt
 	stmtGetCountries *sql.Stmt
+	httpSocket       string = "localhost:8080"
 )
+
+func init() {
+	s := os.Getenv("HTTP_SOCKET")
+	if s != "" {
+		httpSocket = s
+	}
+}
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/addresses", http.StatusFound)
@@ -218,5 +226,6 @@ func main() {
 	// r.HandleFunc("/cities", createCity).Methods("POST")
 
 	http.Handle("/", redirectOnTrailingSlash(r.mux))
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Println("Running on " + httpSocket)
+	log.Fatal(http.ListenAndServe(httpSocket, nil))
 }

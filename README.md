@@ -95,3 +95,13 @@ find ./db/migrations/up/ -type f -name "*.sql" | sort -n | xargs cat | ./bin/psq
 
 ### Develop queries
 cat ./queries/addresses.sql | ./bin/psql-pipe
+
+
+### Easier setup from scratch
+
+0. ./manage/destroy_db_container (optional)
+1. ./manage/create_db_container
+2. ./manage/create_db
+3. ./manage/seed_db
+4. ./manage/psql # test the connection
+5. [HTTP_SOCKET=localhost:8080] ./manage/run

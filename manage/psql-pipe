@@ -1,6 +1,13 @@
 #!/bin/bash
 
-docker run --rm -it --name "$PGDATABASE-psql-interactive" \
+set -e
+APP_NAME=$(basename $(pwd))
+
+set -x -a
+source ~/.env/$APP_NAME
+PGHOST=$(docker inspect --format '{{ .NetworkSettings.IPAddress  }}' ${APP_NAME}-pg)
+
+docker run --rm -i \
          --env PGDATABASE=$PGDATABASE \
          --env PGHOST=$PGHOST \
          --env PGPORT=$PGPORT \

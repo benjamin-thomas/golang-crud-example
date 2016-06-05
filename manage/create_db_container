@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+APP_NAME=$(basename $(pwd))
+
+set -x -a
+source ~/.env/$APP_NAME
+
+docker run --name ${APP_NAME}-pg -e POSTGRES_PASSWORD=$PGPASSWORD -d postgres
+
+PGHOST=$(docker inspect --format '{{ .NetworkSettings.IPAddress  }}' ${APP_NAME}-pg)

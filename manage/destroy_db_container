@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+APP_NAME=$(basename $(pwd))
+
+docker stop ${APP_NAME}-pg && docker rm ${APP_NAME}-pg

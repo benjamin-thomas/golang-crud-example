@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+APP_NAME=$(basename $(pwd))
+
+set -x -a
+source ~/.env/$APP_NAME
+
+find ./db/migrations/up/ -type f -name "*.sql" | sort -n | xargs cat | ./manage/psql-pipe
+
+./manage/psql-pipe < ./db/seed.sql
+
+./manage/pg_dump -s $PGDATABASE >./db/schema.sql

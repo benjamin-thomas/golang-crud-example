@@ -1,0 +1,16 @@
+#!/bin/bash
+
+function kill_dev_server() {
+  set -x
+  #TARGET_PID=$(ps aux | grep ./manage/run | grep -v grep | awk '{ print $2 }');
+  TARGET_PID=$(ss -lptn | grep 8080 | awk -Fpid= '{ print $2 }' | awk -F, '{ print $1 }')
+  set +x
+  kill -s 9 $TARGET_PID;
+}
+
+echo "Watching $(pwd)"
+while true;do
+  while inotifywait -e modify -e move -e delete $(pwd); do
+    kill_dev_server;
+  done
+done

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+APP_NAME=$(basename $(pwd))
+
+set -x -a
+source ~/.env/$APP_NAME
+PGHOST=$(docker inspect --format '{{ .NetworkSettings.IPAddress  }}' ${APP_NAME}-pg)
+
+export CRUD_USER=dev
+export CRUD_PW=dev
+export DEV=1
+
+go run *.go
