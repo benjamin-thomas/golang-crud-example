@@ -2,12 +2,17 @@
 -- PostgreSQL database dump
 --
 
+-- Dumped from database version 9.6.3
+-- Dumped by pg_dump version 9.6.3
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
 SET client_min_messages = warning;
+SET row_security = off;
 
 --
 -- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
@@ -48,7 +53,7 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
--- Name: addresses; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: addresses; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE addresses (
@@ -88,7 +93,7 @@ ALTER SEQUENCE addresses_id_seq OWNED BY addresses.id;
 
 
 --
--- Name: cities; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: cities; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE cities (
@@ -127,7 +132,7 @@ ALTER SEQUENCE cities_id_seq OWNED BY cities.id;
 
 
 --
--- Name: countries; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: countries; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE countries (
@@ -162,7 +167,7 @@ ALTER SEQUENCE countries_id_seq OWNED BY countries.id;
 
 
 --
--- Name: migrations; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+-- Name: migrations; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE migrations (
@@ -173,28 +178,28 @@ CREATE TABLE migrations (
 ALTER TABLE migrations OWNER TO postgres;
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: addresses id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY addresses ALTER COLUMN id SET DEFAULT nextval('addresses_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: cities id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY cities ALTER COLUMN id SET DEFAULT nextval('cities_id_seq'::regclass);
 
 
 --
--- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: countries id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY countries ALTER COLUMN id SET DEFAULT nextval('countries_id_seq'::regclass);
 
 
 --
--- Name: addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: addresses addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY addresses
@@ -202,7 +207,7 @@ ALTER TABLE ONLY addresses
 
 
 --
--- Name: cities_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: cities cities_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY cities
@@ -210,7 +215,7 @@ ALTER TABLE ONLY cities
 
 
 --
--- Name: countries_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+-- Name: countries countries_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY countries
@@ -218,70 +223,70 @@ ALTER TABLE ONLY countries
 
 
 --
--- Name: addresses_name_uidx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: addresses_name_uidx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX addresses_name_uidx ON addresses USING btree (name);
 
 
 --
--- Name: cities_name_and_zip_code_uidx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: cities_name_and_zip_code_uidx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX cities_name_and_zip_code_uidx ON cities USING btree (name, zip_code);
 
 
 --
--- Name: cities_name_uidx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: cities_name_uidx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX cities_name_uidx ON cities USING btree (name);
 
 
 --
--- Name: cities_zip_code_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: cities_zip_code_idx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX cities_zip_code_idx ON cities USING btree (zip_code);
 
 
 --
--- Name: countries_name_uidx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: countries_name_uidx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX countries_name_uidx ON countries USING btree (name);
 
 
 --
--- Name: migrations_version_uidx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: migrations_version_uidx; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE UNIQUE INDEX migrations_version_uidx ON migrations USING btree (version);
 
 
 --
--- Name: addresses_touch_trg; Type: TRIGGER; Schema: public; Owner: postgres
+-- Name: addresses addresses_touch_trg; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
 CREATE TRIGGER addresses_touch_trg BEFORE UPDATE ON addresses FOR EACH ROW EXECUTE PROCEDURE touch();
 
 
 --
--- Name: cities_touch_trg; Type: TRIGGER; Schema: public; Owner: postgres
+-- Name: cities cities_touch_trg; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
 CREATE TRIGGER cities_touch_trg BEFORE UPDATE ON cities FOR EACH ROW EXECUTE PROCEDURE touch();
 
 
 --
--- Name: countries_touch_trg; Type: TRIGGER; Schema: public; Owner: postgres
+-- Name: countries countries_touch_trg; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
 CREATE TRIGGER countries_touch_trg BEFORE UPDATE ON countries FOR EACH ROW EXECUTE PROCEDURE touch();
 
 
 --
--- Name: addresses_city_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: addresses addresses_city_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY addresses
@@ -289,21 +294,11 @@ ALTER TABLE ONLY addresses
 
 
 --
--- Name: cities_country_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: cities cities_country_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY cities
     ADD CONSTRAINT cities_country_id_fkey FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE CASCADE;
-
-
---
--- Name: public; Type: ACL; Schema: -; Owner: postgres
---
-
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
 --
