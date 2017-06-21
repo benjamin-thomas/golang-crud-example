@@ -15,10 +15,10 @@ import (
 
 var (
 	db               *sql.DB
-	defaultPer       int = 10
+	defaultPer       = 10
 	stmtGetCountry   *sql.Stmt
 	stmtGetCountries *sql.Stmt
-	httpSocket       string = "localhost:8080"
+	httpSocket       = "localhost:8080"
 )
 
 func init() {
@@ -32,55 +32,14 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/addresses", http.StatusFound)
 }
 
-// func contractsHandler(w http.ResponseWriter, r *http.Request, key string) {
-//   fmt.Println("contracts!!, key = ", key)
-//   w.Write([]byte("contracts handler"))
-//   keys := strings.Split(key, "/contracts/")
-//   clientID := keys[0]
-//   contractID := keys[1]
-//   fmt.Println("keys =", keys)
-//   fmt.Println("clientID =", clientID)
-//   fmt.Println("contractID =", contractID)
-// }
-
-// func showContract(w http.ResponseWriter, r *http.Request) {
-//   fmt.Println("r.URL.Path =", r.URL.Path)
-//   fmt.Println("r.URL.Query() =", r.URL.Query())
-//   fmt.Fprintln(w, "showContract:", r.URL.Path)
-//   client_id := r.URL.Query().Get(":client_id")
-//   fmt.Println("client_id =", client_id)
-
-//   contract_id := r.URL.Query().Get(":contract_id")
-//   fmt.Println("contract_id =", contract_id)
-// }
-
-func listReports(w http.ResponseWriter, r *http.Request) {
-	var (
-		id       int
-		filename string
-	)
-	rows, err := db.Query("SELECT id, filename FROM reports")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(&id, &filename)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Fprintln(w, "id =", id, ", ", "filename =", filename)
-	}
-}
-
 func setupDB() {
 	dsn := fmt.Sprintf("host=%s dbname=%s user=%s port=%s sslmode=disable",
-		os.Getenv("PGHOST"),
-		os.Getenv("PGDATABASE"),
-		os.Getenv("PGUSER"),
-		os.Getenv("PGPORT"),
+		mustGetenv("PGHOST"),
+		mustGetenv("PGDATABASE"),
+		mustGetenv("PGUSER"),
+		mustGetenv("PGPORT"),
 	)
-	log.Println("dsn =", dsn)
+	log.Printf("dsn: \"%s\"\n", dsn)
 
 	var err error
 	db, err = sql.Open("postgres", dsn)
