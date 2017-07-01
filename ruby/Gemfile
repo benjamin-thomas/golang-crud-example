@@ -1,0 +1,8 @@
+source 'https://rubygems.org'
+
+gem 'pg'
+gem 'sequel', git: 'https://github.com/jeremyevans/sequel', ref: 'b29f007e67e42a102f1813d1e1c26fb441c25f21'
+
+group :development do
+  gem 'pry'
+end

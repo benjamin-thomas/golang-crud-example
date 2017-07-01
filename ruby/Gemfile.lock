@@ -1,0 +1,29 @@
+GIT
+  remote: https://github.com/jeremyevans/sequel
+  revision: b29f007e67e42a102f1813d1e1c26fb441c25f21
+  ref: b29f007e67e42a102f1813d1e1c26fb441c25f21
+  specs:
+    sequel (4.47.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    coderay (1.1.1)
+    method_source (0.8.2)
+    pg (0.21.0)
+    pry (0.10.4)
+      coderay (~> 1.1.0)
+      method_source (~> 0.8.1)
+      slop (~> 3.4)
+    slop (3.6.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  pg
+  pry
+  sequel!
+
+BUNDLED WITH
+   1.13.7
